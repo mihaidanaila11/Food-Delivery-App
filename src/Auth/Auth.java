@@ -1,6 +1,8 @@
 package Auth;
 
+import Exceptions.AuthExceptions.IncorrectPassword;
 import Exceptions.AuthExceptions.UserAlreadyExsists;
+import Exceptions.AuthExceptions.UserDoesNotExist;
 import Users.Client;
 import Users.User;
 
@@ -13,9 +15,12 @@ public class Auth {
 
     private HashMap<String, User> users;
 
+    private User loggedUser;
+
     public Auth() {
         authClient = new AuthClient();
         users = new HashMap<>();
+        loggedUser = null;
     }
 
     public void registerClient(String firstName, String lastName, String email, String password)
@@ -26,6 +31,35 @@ public class Auth {
 
         Client newClient = authClient.register(firstName, lastName, email, password);
         users.put(newClient.getEmail(), newClient);
+        setLoggedUser(newClient);
+
+    }
+
+    public void loginClient(String email, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        if (!users.containsKey(email)) {
+            throw new UserDoesNotExist();
+        }
+
+        if(!authClient.checkPassword(password, users.get(email).getPasswordHash())){
+            throw new IncorrectPassword();
+        }
+
+        loggedUser = users.get(email);
+    }
+    public void logout(){
+        loggedUser = null;
+    }
+
+    private void setLoggedUser(User loggedUser) {
+        this.loggedUser = loggedUser;
+    }
+
+    public boolean isLoggedUser() {
+        return loggedUser != null;
+    }
+
+    public User getLoggedUser() {
+        return loggedUser;
     }
 
     public HashMap<String, User> getUsers() {

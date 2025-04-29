@@ -1,20 +1,22 @@
 package Users;
 
+import Auth.PasswordHash;
+
 public class User {
     private static int idCount = 0;
     private String id;
     private String firstName;
     private String lastName;
     private String email;
-    private byte[] passwordHash;
+    private PasswordHash passwordHash;
 
-    public User(String firstName, String lastName, String email, byte[] password) {
+    public User(String firstName, String lastName, String email, PasswordHash passwordHash) {
         this.id = String.valueOf(idCount);
         idCount++;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.passwordHash = password;
+        this.passwordHash = passwordHash;
     }
 
     public String getId() {
@@ -33,5 +35,5 @@ public class User {
         return email;
     }
 
-    public byte[] getPasswordHash() { return passwordHash; }
+    public PasswordHash getPasswordHash() { return passwordHash; }
 }

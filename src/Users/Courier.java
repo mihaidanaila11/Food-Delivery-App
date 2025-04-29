@@ -1,5 +1,7 @@
 package Users;
 
+import Auth.PasswordHash;
+
 import java.util.Vector;
 
 public class Courier extends User {
@@ -12,7 +14,7 @@ public class Courier extends User {
 
     private Vehicle vehicle;
 
-    public Courier(String firstName, String lastName, String email, byte[] passwordHash,
+    public Courier(String firstName, String lastName, String email, PasswordHash passwordHash,
                    String companyName, String licensePlate, Vehicle vehicle) {
         super(firstName, lastName, email, passwordHash);
         this.companyName = companyName;

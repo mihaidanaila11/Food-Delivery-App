@@ -1,6 +1,7 @@
 import Auth.Auth;
 import Auth.AuthClient;
 import Exceptions.AuthExceptions.UserAlreadyExsists;
+import Exceptions.AuthExceptions.UserDoesNotExist;
 import Users.Client;
 import Users.User;
 
@@ -18,32 +19,62 @@ public class Main {
         Auth auth = new Auth();
 
         while(true){
-            System.out.println("1. Register");
-            System.out.println("2. Exit");
+            if(!auth.isLoggedUser()){
+                System.out.println("1. Register");
+                System.out.println("2. Login");
+                System.out.println("3. Exit");
 
-            option = scanner.nextLine();
+                option = scanner.nextLine();
 
-            if (option.equals("1")) {
-                System.out.println("Enter your first name");
-                String firstName = scanner.nextLine();
-                System.out.println("Enter your last name");
-                String lastName = scanner.nextLine();
-                System.out.println("Enter your email");
-                String email = scanner.nextLine();
-                System.out.println("Enter your password");
-                String password = scanner.nextLine();
+                switch (option) {
+                    case "1" -> {
+                        System.out.println("Enter your first name");
+                        String firstName = scanner.nextLine();
+                        System.out.println("Enter your last name");
+                        String lastName = scanner.nextLine();
+                        System.out.println("Enter your email");
+                        String email = scanner.nextLine();
+                        System.out.println("Enter your password");
+                        String password = scanner.nextLine();
 
-                try{
-                    auth.registerClient(firstName, lastName, email, password);
+                        try {
+                            auth.registerClient(firstName, lastName, email, password);
+                        } catch (UserAlreadyExsists e) {
+                            System.out.println(e.getMessage());
+                        }
+
+                    }
+                    case "2" -> {
+                        System.out.println("Enter your email");
+                        String email = scanner.nextLine();
+                        System.out.println("Enter your password");
+                        String password = scanner.nextLine();
+                        try{
+                            auth.loginClient(email, password);
+                        } catch (Exception e){
+                            System.out.println(e.getMessage());
+                        }
+
+                    }
+                    case "3" -> {
+                        return;
+                    }
                 }
-                catch (UserAlreadyExsists e){
-                    System.out.println(e.getMessage());
-                }
+            }
+            else{
+                User loggedUser = auth.getLoggedUser();
+                System.out.println("Welcome back, " + loggedUser.getFirstName() + "\n");
 
+                System.out.println("1. Logout");
+
+                option = scanner.nextLine();
+                switch (option) {
+                    case "1" -> {
+                        auth.logout();
+                    }
+                }
             }
-            else if (option.equals("2")) {
-                return;
-            }
+
         }
     }
 }
