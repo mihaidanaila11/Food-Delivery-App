@@ -23,7 +23,7 @@ public class Auth {
         loggedUser = null;
     }
 
-    public void registerClient(String firstName, String lastName, String email, String password)
+    public User registerClient(String firstName, String lastName, String email, String password)
             throws NoSuchAlgorithmException, InvalidKeySpecException, UserAlreadyExsists {
         if (users.containsKey(email)) {
             throw new UserAlreadyExsists();
@@ -33,6 +33,7 @@ public class Auth {
         users.put(newClient.getEmail(), newClient);
         setLoggedUser(newClient);
 
+        return newClient;
     }
 
     public void loginClient(String email, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
