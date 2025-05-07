@@ -46,4 +46,20 @@ public class User {
 
     public HashSet<Roles> getRoles() { return userRoles; }
     public void addRole(Roles userRole) { this.userRoles.add(userRole); }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

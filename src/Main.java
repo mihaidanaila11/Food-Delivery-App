@@ -17,11 +17,18 @@ import Auth.AppContext;
 
 public class Main {
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, UserAlreadyExsists {
+    public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         String option = null;
 
-        AppContext context = new AppContext();
+        AppContext context;
+
+        try{
+            context = new AppContext();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return;
+        }
 
         while(true){
             if(!context.getAuth().isLoggedUser()){
@@ -35,7 +42,7 @@ public class Main {
             }
             else{
                 User loggedUser = context.getAuth().getLoggedUser();
-                System.out.println("Role: " + loggedUser.getRoles());
+
                 ArrayList<MenuOption> options = new ArrayList<>();
                 options.add(new AdminPanel().addNeededRole(User.Roles.ADMIN));
                 options.add(new Logout());

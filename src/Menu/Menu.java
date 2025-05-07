@@ -46,6 +46,7 @@ public class Menu {
         String option = scanner.nextLine();
 
         // De tratat exceptii - nu e numar, nu exista optiunea
+
         filteredOptions.get(Integer.parseInt(option) - 1).action(ctx);
     }
 }
