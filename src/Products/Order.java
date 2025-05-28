@@ -11,12 +11,14 @@ public class Order {
     private Client client;
     private Courier courier;
     private Restaurant restaurant;
+    private boolean delivered;
 
     public Order(List<Product> products, Client client, Courier courier, Restaurant restaurant) {
         this.products = products;
         this.client = client;
         this.courier = courier;
         this.restaurant = restaurant;
+        this.delivered = false;
     }
 
     public List<Product> getProducts() {
@@ -29,6 +31,10 @@ public class Order {
 
     public Courier getCourier() {
         return courier;
+    }
+
+    public boolean isDelivered() {
+        return delivered;
     }
 
     public Restaurant getRestaurant() {
@@ -49,5 +55,9 @@ public class Order {
 
     public void setRestaurant(Restaurant restaurant) {
         this.restaurant = restaurant;
+    }
+
+    public void setDelivered(boolean delivered) {
+        this.delivered = delivered;
     }
 }

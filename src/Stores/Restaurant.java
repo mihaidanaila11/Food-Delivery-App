@@ -1,18 +1,18 @@
 package Stores;
 
-import Location.Address;
+import Location.Location;
 import Products.Product;
 
 import java.util.List;
 
 public class Restaurant {
     private String name;
-    private Address address;
+    private Location location;
     private List<Product> products;
 
-    public Restaurant(String name, Address address, List<Product> products) {
+    public Restaurant(String name, Location location, List<Product> products) {
         this.name = name;
-        this.address = address;
+        this.location = location;
         this.products = products;
     }
 
@@ -20,8 +20,8 @@ public class Restaurant {
         return name;
     }
 
-    public Address getAddress() {
-        return address;
+    public Location getAddress() {
+        return location;
     }
 
     public List<Product> getProducts() {
@@ -32,8 +32,8 @@ public class Restaurant {
         this.name = name;
     }
 
-    public void setAddress(Address address) {
-        this.address = address;
+    public void setAddress(Location location) {
+        this.location = location;
     }
 
     public void setProducts(List<Product> products) {

@@ -1,6 +1,6 @@
 package Location;
 
-public class Address {
+public class Location {
     private String Street;
     private String City;
     private String State;
@@ -8,7 +8,7 @@ public class Address {
     private String Country;
     private int Number;
 
-    public Address(String street, String city, String state, String postalCode, String country, int number) {
+    public Location(String street, String city, String state, String postalCode, String country, int number) {
         Street = street;
         City = city;
         State = state;
