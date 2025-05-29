@@ -3,19 +3,23 @@ package Auth;
 import Exceptions.AuthExceptions.UserAlreadyExsists;
 import Exceptions.AuthExceptions.UserDoesNotExist;
 import Users.User;
+import database.DatabaseHandler;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.sql.SQLException;
 
 public class AppContext {
     private Auth auth;
     private User editingUser;
+    private DatabaseHandler db;
 
-    public AppContext() throws UserAlreadyExsists, NoSuchAlgorithmException, InvalidKeySpecException {
-        auth = new Auth();
+    public AppContext() throws UserAlreadyExsists, NoSuchAlgorithmException, InvalidKeySpecException, SQLException {
+        this.db = new DatabaseHandler();
+        auth = new Auth(db);
 
-        this.auth.registerClient("Admin", "Admin", "Admin", "admin").addRole(User.Roles.ADMIN);
-        this.auth.logout();
+        // this.auth.registerClient("Admin", "Admin", "Admin", "admin").addRole(User.Roles.ADMIN);
+        // this.auth.logout();
         editingUser = null;
     }
 

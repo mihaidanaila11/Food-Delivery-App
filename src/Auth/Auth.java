@@ -5,9 +5,14 @@ import Exceptions.AuthExceptions.UserAlreadyExsists;
 import Exceptions.AuthExceptions.UserDoesNotExist;
 import Users.Client;
 import Users.User;
+import database.DatabaseHandler;
 
+import javax.xml.crypto.Data;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,11 +22,13 @@ public class Auth {
     private HashMap<String, User> users;
 
     private User loggedUser;
+    private DatabaseHandler db;
 
-    public Auth() {
+    public Auth(DatabaseHandler db) {
         authClient = new AuthClient();
         users = new HashMap<>();
         loggedUser = null;
+        this.db = db;
     }
 
     private Boolean UserExists(String email) {
@@ -34,8 +41,9 @@ public class Auth {
     }
 
     public User registerClient(String firstName, String lastName, String email, String password)
-            throws NoSuchAlgorithmException, InvalidKeySpecException, UserAlreadyExsists {
-        if (users.containsKey(email)) {
+            throws NoSuchAlgorithmException, InvalidKeySpecException, UserAlreadyExsists, SQLException {
+
+        if (db.selectAllWhere("Users", "email", email).next()) {
             throw new UserAlreadyExsists();
         }
 
@@ -43,11 +51,12 @@ public class Auth {
         users.put(newClient.getEmail(), newClient);
         setLoggedUser(newClient);
 
+        db.insertUser(newClient);
         return newClient;
     }
 
-    public void loginClient(String email, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        if (!users.containsKey(email)) {
+    public void loginClient(String email, String password) throws NoSuchAlgorithmException, InvalidKeySpecException, SQLException {
+        if (!db.selectAllWhere("Users", "email", email).next()) {
             throw new UserDoesNotExist();
         }
 
@@ -57,6 +66,7 @@ public class Auth {
 
         loggedUser = users.get(email);
     }
+
     public void logout(){
         loggedUser = null;
     }

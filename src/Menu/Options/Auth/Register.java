@@ -6,6 +6,7 @@ import Menu.MenuOption;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Register extends MenuOption {
@@ -34,6 +35,8 @@ public class Register extends MenuOption {
             System.out.println(e.getMessage());
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new RuntimeException(e);
+        } catch (SQLException e) {
+            System.out.println("Userul nu a putut fi inregistrat in baza de date.");
         }
     }
 }
