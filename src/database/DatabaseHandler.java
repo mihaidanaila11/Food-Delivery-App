@@ -1,5 +1,6 @@
 package database;
 
+import Users.Client;
 import Users.User;
 
 import java.sql.*;
@@ -49,6 +50,10 @@ public class DatabaseHandler {
         query.setLength(query.length() - 2);
         query.append(") VALUES (");
         for (String value : values) {
+            if(value.equals("NULL")) {
+                query.append(value).append(", ");
+                continue;
+            }
             query.append("'").append(value).append("', ");
         }
         query.setLength(query.length() - 2);
@@ -56,12 +61,21 @@ public class DatabaseHandler {
         return query.toString();
     }
 
-    public void insertUser(User user) throws SQLException {
+    private void insertUser(User user) throws SQLException {
+        System.out.println("insert");
         executeUpdate(getInsertQuery("users",
                 new String[]{"userID", "firstname", "lastname", "passwordhash", "passwordsalt", "email"},
                 new String[]{user.getId(), user.getFirstName(), user.getLastName(),
                         Arrays.toString(user.getPasswordHash().getPasswordHash()),
                         Arrays.toString(user.getPasswordHash().getPasswordSalt()), user.getEmail()}));
+    }
+
+    public void insertClient(Client client) throws SQLException {
+        insertUser(client);
+        System.out.println("Client inserted: " + client.getId());
+        executeUpdate(getInsertQuery("clients",
+                new String[]{"UserID", "LocationID", "PhoneNumber"},
+                new String[]{client.getId(), "NULL", "NULL"}));
     }
 
     public ResultSet selectAllWhere(String tableName, String keyColumn, String keyValue) throws SQLException {

@@ -36,6 +36,7 @@ public class Register extends MenuOption {
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new RuntimeException(e);
         } catch (SQLException e) {
+            e.printStackTrace();
             System.out.println("Userul nu a putut fi inregistrat in baza de date.");
         }
     }

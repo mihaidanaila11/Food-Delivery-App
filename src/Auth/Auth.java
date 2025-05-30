@@ -11,6 +11,7 @@ import javax.xml.crypto.Data;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -51,12 +52,14 @@ public class Auth {
         users.put(newClient.getEmail(), newClient);
         setLoggedUser(newClient);
 
-        db.insertUser(newClient);
+        db.insertClient(newClient);
         return newClient;
     }
 
     public void loginClient(String email, String password) throws NoSuchAlgorithmException, InvalidKeySpecException, SQLException {
-        if (!db.selectAllWhere("Users", "email", email).next()) {
+        ResultSet fetchedUser = db.selectAllWhere("Users", "email", email);
+
+        if (!fetchedUser.next()) {
             throw new UserDoesNotExist();
         }
 

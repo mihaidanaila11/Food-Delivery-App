@@ -4,10 +4,10 @@ import Auth.PasswordHash;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.UUID;
 
 public class User {
-    private static int idCount = 0;
-    private String id;
+    private UUID id;
     private String firstName;
     private String lastName;
     private String email;
@@ -17,8 +17,7 @@ public class User {
     private HashSet<Roles> userRoles;
 
     public User(String firstName, String lastName, String email, PasswordHash passwordHash) {
-        this.id = String.valueOf(idCount);
-        idCount++;
+        this.id = UUID.randomUUID();
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -27,7 +26,7 @@ public class User {
     }
 
     public String getId() {
-        return id;
+        return id.toString();
     }
 
     public String getFirstName() {
@@ -46,10 +45,6 @@ public class User {
 
     public HashSet<Roles> getRoles() { return userRoles; }
     public void addRole(Roles userRole) { this.userRoles.add(userRole); }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
