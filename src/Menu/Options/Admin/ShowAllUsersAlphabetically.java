@@ -14,7 +14,7 @@ public class ShowAllUsersAlphabetically extends MenuOption {
 
     @Override
     public void action(AppContext ctx) {
-        ArrayList<User> users = new ArrayList<>(ctx.getAuth().getUsers().values());
+        ArrayList<User> users = ctx.getAuth().getUsers();
 
         users.sort(Comparator.comparing(User::getFirstName));
 

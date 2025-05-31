@@ -3,6 +3,7 @@ package Menu.Options.Admin.EditUsers;
 import Auth.AppContext;
 import Menu.MenuOption;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class EditUserFirstName extends MenuOption {
@@ -17,6 +18,10 @@ public class EditUserFirstName extends MenuOption {
         System.out.println("Enter First Name");
         String newLastName = scanner.nextLine();
 
-        ctx.getAuth().changeFirstName(ctx.getEditingUser().getEmail(), newLastName);
+        try{
+            ctx.getAuth().changeFirstName(ctx.getEditingUser().getId(), newLastName);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

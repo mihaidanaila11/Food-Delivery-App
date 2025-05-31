@@ -1,5 +1,7 @@
 package database;
 
+import Auth.PasswordHash;
+import Exceptions.AuthExceptions.UserDoesNotExist;
 import Users.Client;
 import Users.User;
 
@@ -7,6 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.UUID;
 
 public class DatabaseHandler {
     private Connection conn = null;
@@ -73,7 +76,7 @@ public class DatabaseHandler {
                 "INSERT INTO Users (userID, firstname, lastname, passwordhash, passwordsalt, email) " +
                         "VALUES (?, ?, ?, ?, ?, ?);");
 
-        stmt.setString(1, user.getId());
+        stmt.setString(1, user.getId().toString());
         stmt.setString(2, user.getFirstName());
         stmt.setString(3, user.getLastName());
         stmt.setBytes(4, user.getPasswordHash().getPasswordHash());
@@ -87,7 +90,7 @@ public class DatabaseHandler {
         System.out.println("Client inserted: " + client.getId());
         executeUpdate(getInsertQuery("clients",
                 new String[]{"UserID", "LocationID", "PhoneNumber"},
-                new String[]{client.getId(), "NULL", "NULL"}));
+                new String[]{client.getId().toString(), "NULL", "NULL"}));
     }
 
     public void updateUserRoles(User user) throws SQLException {
@@ -120,7 +123,7 @@ public class DatabaseHandler {
                 String insertQuery =    "INSERT INTO UserRoles (UserID, RoleId) " +
                                         "VALUES (?, ?);";
                 PreparedStatement insertStmt = conn.prepareStatement(insertQuery);
-                insertStmt.setString(1, user.getId());
+                insertStmt.setString(1, user.getId().toString());
                 insertStmt.setInt(2, roleIds.get(role));
 
                 executeUpdate(insertStmt);
@@ -135,6 +138,60 @@ public class DatabaseHandler {
         String query = "SELECT * FROM " + tableName + " WHERE " + keyColumn + " = \'" + keyValue + "\';";
         Statement statement = conn.createStatement();
         return statement.executeQuery(query);
+    }
+
+    public ResultSet selectAll(String tableName) throws SQLException {
+        String query = "SELECT * FROM " + tableName + ";";
+        Statement statement = conn.createStatement();
+        return statement.executeQuery(query);
+    }
+
+    public User fetchUserById(UUID id) throws SQLException {
+        ResultSet fetchedUser = selectAllWhere("Users", "userId", id.toString());
+
+        if (!fetchedUser.next()) {
+            throw new UserDoesNotExist();
+        }
+
+        return new User(
+                fetchedUser.getString("userID"),
+                fetchedUser.getString("firstName"),
+                fetchedUser.getString("lastName"),
+                fetchedUser.getString("email"),
+                new PasswordHash(
+                        fetchedUser.getBytes("passwordHash"),
+                        fetchedUser.getBytes("passwordSalt")
+                )
+        );
+    }
+
+    public User fetchUserByEmail(String email) throws SQLException, UserDoesNotExist {
+        ResultSet fetchedUser = selectAllWhere("Users", "email", email);
+
+        if (!fetchedUser.next()) {
+            throw new UserDoesNotExist();
+        }
+
+        return new User(
+                fetchedUser.getString("userID"),
+                fetchedUser.getString("firstName"),
+                fetchedUser.getString("lastName"),
+                fetchedUser.getString("email"),
+                new PasswordHash(
+                        fetchedUser.getBytes("passwordHash"),
+                        fetchedUser.getBytes("passwordSalt")
+                )
+        );
+    }
+
+    public void updateUser(User user) throws SQLException {
+        String query = "UPDATE Users SET firstName = ?, lastName = ?, email = ? WHERE userID = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, user.getFirstName());
+        stmt.setString(2, user.getLastName());
+        stmt.setString(3, user.getEmail());
+        stmt.setString(4, user.getId().toString());
+        executeUpdate(stmt);
     }
 
 }

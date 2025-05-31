@@ -4,6 +4,7 @@ import Auth.AppContext;
 import Exceptions.AuthExceptions.UserDoesNotExist;
 import Menu.MenuOption;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class DeleteUser extends MenuOption {
@@ -20,7 +21,7 @@ public class DeleteUser extends MenuOption {
 
         try{
             ctx.getAuth().deleteUser(email);
-        } catch (UserDoesNotExist e) {
+        } catch (UserDoesNotExist | SQLException e) {
             System.out.println(e.getMessage());
         }
 

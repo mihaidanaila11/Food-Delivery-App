@@ -6,6 +6,7 @@ import Menu.Menu;
 import Menu.MenuOption;
 import Users.User;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -18,13 +19,13 @@ public class EditUser extends MenuOption {
     public void action(AppContext ctx){
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Enter User ID");
-        String id = scanner.nextLine();
+        System.out.println("Enter User email");
+        String email = scanner.nextLine();
 
         try{
-            ctx.setEditingUser(id);
+            ctx.setEditingUser(email);
         }
-        catch (UserDoesNotExist e){
+        catch (UserDoesNotExist | SQLException e){
             System.out.println(e.getMessage());
         }
 

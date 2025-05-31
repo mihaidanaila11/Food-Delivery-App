@@ -12,20 +12,19 @@ import java.security.spec.InvalidKeySpecException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.UUID;
 
 public class Auth {
     private final AuthClient authClient;
-
-    private final HashMap<String, User> users;
 
     private User loggedUser;
     private final DatabaseHandler db;
 
     public Auth(DatabaseHandler db) {
         authClient = new AuthClient();
-        users = new HashMap<>();
         loggedUser = null;
         this.db = db;
     }
@@ -69,7 +68,7 @@ public class Auth {
             throw new IncorrectPassword();
         }
 
-        ResultSet userRolesIds = db.selectAllWhere("UserRoles", "userID", client.getId());
+        ResultSet userRolesIds = db.selectAllWhere("UserRoles", "userID", client.getId().toString());
         String getRoleIdQuery = "SELECT RoleName FROM Roles WHERE RoleId = ?;";
         HashSet<User.Roles> userRoles = new HashSet<>();
         while(userRolesIds.next()){
@@ -93,46 +92,34 @@ public class Auth {
         loggedUser = null;
     }
 
-    public User getUserById(String id) {
-        for(User u : users.values()) {
-            if(u.getId().equals(id)) {
-                return u;
-            }
-        }
-
-        return null;
+    public User getUserById(UUID id) throws SQLException, UserDoesNotExist {
+        return db.fetchUserById(id);
     }
 
-    public void deleteUser(String id) throws UserDoesNotExist{
-        User fetchedUser = getUserById(id);
+    public void deleteUser(String email) throws UserDoesNotExist, SQLException {
+        User fetchedUser = db.fetchUserByEmail(email);
         if(fetchedUser == null){
             throw new UserDoesNotExist();
         }
 
-        if(getLoggedUser().getId().equals(id)) {
+        if(getLoggedUser().getId().equals(fetchedUser.getId())) {
             logout();
         }
-
-        users.remove(fetchedUser.getEmail());
     }
 
-    public void changeLastName(String email, String newLastName) throws UserDoesNotExist{
-        User fetchedUser = users.get(email);
-        if(fetchedUser == null){
-            throw new UserDoesNotExist();
-        }
+    public void changeLastName(UUID id, String newLastName) throws UserDoesNotExist, SQLException {
+        User fetchedUser = getUserById(id);
+        fetchedUser.setLastName(newLastName);
 
-        users.get(email).setLastName(newLastName);
+        db.updateUser(fetchedUser);
 
     }
 
-    public void changeFirstName(String email, String newFirstName) throws UserDoesNotExist{
-        User fetchedUser = users.get(email);
-        if(fetchedUser == null){
-            throw new UserDoesNotExist();
-        }
+    public void changeFirstName(UUID id, String newFirstName) throws UserDoesNotExist, SQLException {
+        User fetchedUser = getUserById(id);
+        fetchedUser.setLastName(newFirstName);
 
-        users.get(email).setFirstName(newFirstName);
+        db.updateUser(fetchedUser);
 
     }
 
@@ -148,7 +135,29 @@ public class Auth {
         return loggedUser;
     }
 
-    public HashMap<String, User> getUsers() {
+    public ArrayList<User> getUsers() {
+        ArrayList<User> users = new ArrayList<>();
+        try {
+            ResultSet fetchedUsers = db.selectAll("Users");
+            while (fetchedUsers.next()) {
+                users.add(new User(
+                        fetchedUsers.getString("userID"),
+                        fetchedUsers.getString("firstName"),
+                        fetchedUsers.getString("lastName"),
+                        fetchedUsers.getString("email"),
+                        new PasswordHash(
+                                fetchedUsers.getBytes("passwordHash"),
+                                fetchedUsers.getBytes("passwordSalt")
+                        )
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return users;
+    }
+
+    public User getUserByEmail(String email) throws SQLException {
+        return db.fetchUserByEmail(email);
     }
 }

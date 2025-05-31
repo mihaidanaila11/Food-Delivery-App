@@ -8,6 +8,7 @@ import database.DatabaseHandler;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class AppContext {
     private final Auth auth;
@@ -18,10 +19,10 @@ public class AppContext {
         this.db = new DatabaseHandler();
         auth = new Auth(db);
 
-        db.updateUserRoles(
-                this.auth.registerClient("Admin", "Admin", "Admin", "admin")
-                        .addRole(User.Roles.ADMIN)
-        );
+//        db.updateUserRoles(
+//                this.auth.registerClient("Admin", "Admin", "Admin", "admin")
+//                        .addRole(User.Roles.ADMIN)
+//        );
 
         this.auth.logout();
         editingUser = null;
@@ -30,12 +31,9 @@ public class AppContext {
     public Auth getAuth() {
         return auth;
     }
-    public void setEditingUser(String id) {
-        User fetchedUser = auth.getUserById(id);
+    public void setEditingUser(String email) throws SQLException, UserDoesNotExist {
+        User fetchedUser = auth.getUserByEmail(email);
 
-        if(fetchedUser == null) {
-            throw new UserDoesNotExist();
-        }
         this.editingUser = fetchedUser;
     }
     public User getEditingUser() { return editingUser; }

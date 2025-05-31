@@ -33,8 +33,8 @@ public class User {
         this.userRoles = new HashSet<>();
     }
 
-    public String getId() {
-        return id.toString();
+    public UUID getId() {
+        return id;
     }
 
     public String getFirstName() {
