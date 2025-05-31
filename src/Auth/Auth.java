@@ -16,27 +16,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class Auth {
-    private AuthClient authClient;
+    private final AuthClient authClient;
 
-    private HashMap<String, User> users;
+    private final HashMap<String, User> users;
 
     private User loggedUser;
-    private DatabaseHandler db;
+    private final DatabaseHandler db;
 
     public Auth(DatabaseHandler db) {
         authClient = new AuthClient();
         users = new HashMap<>();
         loggedUser = null;
         this.db = db;
-    }
-
-    private Boolean UserExists(String email) {
-        for(User u : users.values()) {
-            if(u.getEmail().equals(email)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public User registerClient(String firstName, String lastName, String email, String password)
@@ -110,9 +101,6 @@ public class Auth {
         }
 
         return null;
-    }
-    public User getUserByEmail(String email) {
-        return users.get(email);
     }
 
     public void deleteUser(String id) throws UserDoesNotExist{

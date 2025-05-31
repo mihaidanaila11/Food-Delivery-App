@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public interface AuthenticatorInterface {
-    public User register(String firstName, String lastName, String email, String password) throws NoSuchAlgorithmException, InvalidKeySpecException;
+    User register(String firstName, String lastName, String email, String password) throws NoSuchAlgorithmException, InvalidKeySpecException;
 
     default PasswordHash passwordHash(String password, byte[] passwordSalt) throws NoSuchAlgorithmException, InvalidKeySpecException {
         SecureRandom random = new SecureRandom();

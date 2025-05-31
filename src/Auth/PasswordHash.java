@@ -1,8 +1,8 @@
 package Auth;
 
 public class PasswordHash {
-    private byte[] passwordHash;
-    private byte[] passwordSalt;
+    private final byte[] passwordHash;
+    private final byte[] passwordSalt;
 
     public PasswordHash(byte[] passwordHash, byte[] passwordSalt) {
         this.passwordHash = passwordHash;

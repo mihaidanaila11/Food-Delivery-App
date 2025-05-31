@@ -1,4 +1,3 @@
-import Exceptions.AuthExceptions.UserAlreadyExsists;
 import Menu.Menu;
 import Menu.MenuOption;
 import Menu.Options.Admin.AdminPanel;
@@ -7,15 +6,9 @@ import Menu.Options.Auth.Logout;
 import Menu.Options.Auth.Register;
 import Menu.Options.Exit;
 import Users.User;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 import Auth.AppContext;
-import database.UpdateCol;
 
 public class Main {
 
@@ -28,6 +21,7 @@ public class Main {
             System.out.println(e.getMessage());
             return;
         }
+
 
         while(true){
             if(!context.getAuth().isLoggedUser()){

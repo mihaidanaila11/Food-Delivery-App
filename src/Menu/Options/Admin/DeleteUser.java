@@ -3,9 +3,7 @@ package Menu.Options.Admin;
 import Auth.AppContext;
 import Exceptions.AuthExceptions.UserDoesNotExist;
 import Menu.MenuOption;
-import Users.User;
 
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class DeleteUser extends MenuOption {

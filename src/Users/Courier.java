@@ -2,8 +2,6 @@ package Users;
 
 import Auth.PasswordHash;
 
-import java.util.Vector;
-
 public class Courier extends User {
     private String companyName;
     private String licensePlate;

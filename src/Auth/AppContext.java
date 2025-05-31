@@ -10,9 +10,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.sql.SQLException;
 
 public class AppContext {
-    private Auth auth;
+    private final Auth auth;
     private User editingUser;
-    private DatabaseHandler db;
+    private final DatabaseHandler db;
 
     public AppContext() throws UserAlreadyExsists, NoSuchAlgorithmException, InvalidKeySpecException, SQLException {
         this.db = new DatabaseHandler();

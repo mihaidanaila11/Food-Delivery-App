@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Menu {
-    private ArrayList<MenuOption> options;
+    private final ArrayList<MenuOption> options;
     private String banner;
-    private static final ArrayList<String> invalidInputs = new ArrayList<String>();
+    private static final ArrayList<String> invalidInputs = new ArrayList<>();
 
     public Menu(ArrayList<MenuOption> options) {
 

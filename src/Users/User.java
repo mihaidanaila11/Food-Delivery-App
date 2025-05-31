@@ -2,16 +2,15 @@ package Users;
 
 import Auth.PasswordHash;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
 
 public class User {
-    private UUID id;
+    private final UUID id;
     private String firstName;
     private String lastName;
     private String email;
-    private PasswordHash passwordHash;
+    private final PasswordHash passwordHash;
 
     public enum Roles {USER, ADMIN}
     private HashSet<Roles> userRoles;
@@ -22,7 +21,7 @@ public class User {
         this.lastName = lastName;
         this.email = email;
         this.passwordHash = passwordHash;
-        this.userRoles = new HashSet<Roles>();
+        this.userRoles = new HashSet<>();
     }
 
     public User(String id, String firstName, String lastName, String email, PasswordHash passwordHash) {
@@ -31,7 +30,7 @@ public class User {
         this.lastName = lastName;
         this.email = email;
         this.passwordHash = passwordHash;
-        this.userRoles = new HashSet<Roles>();
+        this.userRoles = new HashSet<>();
     }
 
     public String getId() {

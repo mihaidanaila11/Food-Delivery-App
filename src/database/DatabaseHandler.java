@@ -5,7 +5,6 @@ import Users.User;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -39,8 +38,7 @@ public class DatabaseHandler {
     }
 
     private void executeUpdate(String query) throws SQLException {
-        Statement stmt = null;
-        stmt = conn.createStatement();
+        Statement stmt = conn.createStatement();
 
         stmt.executeUpdate(query);
     }
