@@ -17,15 +17,15 @@ public class DeleteUser extends MenuOption {
     public void action(AppContext ctx) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Enter User ID to be deleted");
-        String id = scanner.nextLine();
+        System.out.println("Enter User email to be deleted");
+        String email = scanner.nextLine();
 
         try{
-            ctx.getAuth().deleteUser(id);
+            ctx.getAuth().deleteUser(email);
         } catch (UserDoesNotExist e) {
             System.out.println(e.getMessage());
         }
 
-        System.out.println("User " + id + " has been deleted");
+        System.out.println("User " + " has been deleted");
     }
 }

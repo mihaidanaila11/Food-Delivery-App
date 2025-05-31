@@ -46,19 +46,21 @@ public class Menu {
 
         ArrayList<MenuOption> filteredOptions = new ArrayList<MenuOption>();
 
-        for(MenuOption option : options){
-            if(!ctx.getAuth().isLoggedUser()){
-                // Daca nu e logat si a ajuns in meniul asta inseamna ca nu are nevoie
-                // de permisiuni
-                filteredOptions = options;
-                break;
-            }
 
-            if(option.hasAccess(ctx.getAuth().getLoggedUser().getRoles())){
-                filteredOptions.add(option);
-            }
 
+        if(!ctx.getAuth().isLoggedUser()){
+            // Daca nu e logat si a ajuns in meniul asta inseamna ca nu are nevoie
+            // de permisiuni
+            filteredOptions = options;
         }
+        else{
+            for(MenuOption option : options){
+                if(option.hasAccess(ctx.getAuth().getLoggedUser().getRoles())){
+                    filteredOptions.add(option);
+                }
+            }
+        }
+
 
         for (int i=0; i<filteredOptions.size(); i++) {
             System.out.println(i+1 + ": " + filteredOptions.get(i).getLabel());

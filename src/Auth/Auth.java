@@ -7,15 +7,13 @@ import Users.Client;
 import Users.User;
 import database.DatabaseHandler;
 
-import javax.xml.crypto.Data;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 
 public class Auth {
     private AuthClient authClient;
@@ -49,10 +47,12 @@ public class Auth {
         }
 
         Client newClient = authClient.register(firstName, lastName, email, password);
-        users.put(newClient.getEmail(), newClient);
-        setLoggedUser(newClient);
 
         db.insertClient(newClient);
+        db.updateUserRoles(newClient);
+
+
+        setLoggedUser(newClient);
         return newClient;
     }
 
@@ -63,11 +63,39 @@ public class Auth {
             throw new UserDoesNotExist();
         }
 
-        if(!authClient.checkPassword(password, users.get(email).getPasswordHash())){
+        Client client = new Client(
+                fetchedUser.getString("userID"),
+                fetchedUser.getString("firstName"),
+                fetchedUser.getString("lastName"),
+                fetchedUser.getString("email"),
+                new PasswordHash(
+                        fetchedUser.getBytes("passwordHash"),
+                        fetchedUser.getBytes("passwordSalt")
+                )
+        );
+
+        if(!authClient.checkPassword(password, client.getPasswordHash())){
             throw new IncorrectPassword();
         }
 
-        loggedUser = users.get(email);
+        ResultSet userRolesIds = db.selectAllWhere("UserRoles", "userID", client.getId());
+        String getRoleIdQuery = "SELECT RoleName FROM Roles WHERE RoleId = ?;";
+        HashSet<User.Roles> userRoles = new HashSet<>();
+        while(userRolesIds.next()){
+            PreparedStatement stmt = db.getConnection().prepareStatement(getRoleIdQuery);
+            stmt.setInt(1, userRolesIds.getInt("roleID"));
+
+            ResultSet roleName = stmt.executeQuery();
+            if(roleName.next()){
+                userRoles.add(User.Roles.valueOf(roleName.getString("roleName")));
+            }
+
+
+        }
+
+        client.setUserRoles(userRoles);
+
+        loggedUser = client;
     }
 
     public void logout(){

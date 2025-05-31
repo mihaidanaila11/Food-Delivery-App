@@ -18,8 +18,12 @@ public class AppContext {
         this.db = new DatabaseHandler();
         auth = new Auth(db);
 
-        // this.auth.registerClient("Admin", "Admin", "Admin", "admin").addRole(User.Roles.ADMIN);
-        // this.auth.logout();
+        db.updateUserRoles(
+                this.auth.registerClient("Admin", "Admin", "Admin", "admin")
+                        .addRole(User.Roles.ADMIN)
+        );
+
+        this.auth.logout();
         editingUser = null;
     }
 

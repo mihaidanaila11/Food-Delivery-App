@@ -4,7 +4,10 @@ import Users.Client;
 import Users.User;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class DatabaseHandler {
     private Connection conn = null;
@@ -42,6 +45,12 @@ public class DatabaseHandler {
         stmt.executeUpdate(query);
     }
 
+    private void executeUpdate(PreparedStatement stmt) throws SQLException {
+        if (stmt != null) {
+            stmt.executeUpdate();
+        }
+    }
+
     private String getInsertQuery(String tableName, String[] columns, String[] values) {
         StringBuilder query = new StringBuilder("INSERT INTO " + tableName + " (");
         for (String column : columns) {
@@ -62,12 +71,17 @@ public class DatabaseHandler {
     }
 
     private void insertUser(User user) throws SQLException {
-        System.out.println("insert");
-        executeUpdate(getInsertQuery("users",
-                new String[]{"userID", "firstname", "lastname", "passwordhash", "passwordsalt", "email"},
-                new String[]{user.getId(), user.getFirstName(), user.getLastName(),
-                        Arrays.toString(user.getPasswordHash().getPasswordHash()),
-                        Arrays.toString(user.getPasswordHash().getPasswordSalt()), user.getEmail()}));
+        PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO Users (userID, firstname, lastname, passwordhash, passwordsalt, email) " +
+                        "VALUES (?, ?, ?, ?, ?, ?);");
+
+        stmt.setString(1, user.getId());
+        stmt.setString(2, user.getFirstName());
+        stmt.setString(3, user.getLastName());
+        stmt.setBytes(4, user.getPasswordHash().getPasswordHash());
+        stmt.setBytes(5, user.getPasswordHash().getPasswordSalt());
+        stmt.setString(6, user.getEmail());
+        executeUpdate(stmt);
     }
 
     public void insertClient(Client client) throws SQLException {
@@ -76,6 +90,47 @@ public class DatabaseHandler {
         executeUpdate(getInsertQuery("clients",
                 new String[]{"UserID", "LocationID", "PhoneNumber"},
                 new String[]{client.getId(), "NULL", "NULL"}));
+    }
+
+    public void updateUserRoles(User user) throws SQLException {
+        HashSet<User.Roles> roles = user.getRoles();
+        ArrayList<String> rolesArray = new ArrayList<>();
+
+        for(User.Roles role : roles){
+            rolesArray.add(role.name());
+        }
+
+        HashMap<String, Integer> roleIds = new HashMap<>();
+
+        String query = "SELECT RoleID FROM Roles WHERE RoleName = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        for(String role : rolesArray){
+            try{
+                stmt.setString(1, role);
+                ResultSet rs = stmt.executeQuery();
+
+                if(rs.next()){
+                    roleIds.put(role, rs.getInt("RoleID"));
+                }
+            } catch (RuntimeException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        for(String role : rolesArray) {
+            try {
+                String insertQuery =    "INSERT INTO UserRoles (UserID, RoleId) " +
+                                        "VALUES (?, ?);";
+                PreparedStatement insertStmt = conn.prepareStatement(insertQuery);
+                insertStmt.setString(1, user.getId());
+                insertStmt.setInt(2, roleIds.get(role));
+
+                executeUpdate(insertStmt);
+
+            } catch (SQLException ignored) {
+
+            }
+        }
     }
 
     public ResultSet selectAllWhere(String tableName, String keyColumn, String keyValue) throws SQLException {

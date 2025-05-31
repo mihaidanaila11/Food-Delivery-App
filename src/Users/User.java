@@ -25,6 +25,15 @@ public class User {
         this.userRoles = new HashSet<Roles>();
     }
 
+    public User(String id, String firstName, String lastName, String email, PasswordHash passwordHash) {
+        this.id = UUID.fromString(id);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.userRoles = new HashSet<Roles>();
+    }
+
     public String getId() {
         return id.toString();
     }
@@ -44,7 +53,11 @@ public class User {
     public PasswordHash getPasswordHash() { return passwordHash; }
 
     public HashSet<Roles> getRoles() { return userRoles; }
-    public void addRole(Roles userRole) { this.userRoles.add(userRole); }
+    public User addRole(Roles userRole) {
+        this.userRoles.add(userRole);
+
+        return this;
+    }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
@@ -56,5 +69,9 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public void setUserRoles(HashSet<Roles> userRoles) {
+        this.userRoles = userRoles;
     }
 }
