@@ -37,4 +37,5 @@ public class AppContext {
         this.editingUser = fetchedUser;
     }
     public User getEditingUser() { return editingUser; }
+    public DatabaseHandler getDb() { return db; }
 }

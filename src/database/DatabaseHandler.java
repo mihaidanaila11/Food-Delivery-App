@@ -2,6 +2,8 @@ package database;
 
 import Auth.PasswordHash;
 import Exceptions.AuthExceptions.UserDoesNotExist;
+import Location.City;
+import Location.State;
 import Users.Client;
 import Users.User;
 
@@ -135,7 +137,19 @@ public class DatabaseHandler {
     }
 
     public ResultSet selectAllWhere(String tableName, String keyColumn, String keyValue) throws SQLException {
-        String query = "SELECT * FROM " + tableName + " WHERE " + keyColumn + " = \'" + keyValue + "\';";
+        String query = "SELECT * FROM " + tableName + " WHERE " + keyColumn + " = '" + keyValue + "`';";
+        Statement statement = conn.createStatement();
+        return statement.executeQuery(query);
+    }
+
+    public ResultSet selectColumnWhere(String tableName, String columnName, String keyColumn, String keyValue) throws SQLException {
+        String query = "SELECT " + columnName + " FROM " + tableName + " WHERE " + keyColumn + " = '" + keyValue + "';";
+        Statement statement = conn.createStatement();
+        return statement.executeQuery(query);
+    }
+
+    public ResultSet selectAllWhere(String tableName, String keyColumn, int keyValue) throws SQLException {
+        String query = "SELECT * FROM " + tableName + " WHERE " + keyColumn + " = " + keyValue + ";";
         Statement statement = conn.createStatement();
         return statement.executeQuery(query);
     }
@@ -194,4 +208,36 @@ public class DatabaseHandler {
         executeUpdate(stmt);
     }
 
+    public void insertCity(City city) {
+        String query = "INSERT INTO Cities (CityName, StateID) VALUES (?, ?);";
+
+        try {
+            PreparedStatement stmt = conn.prepareStatement(query);
+
+            stmt.setString(1, city.getName());
+            stmt.setInt(2, city.getStateId());
+
+            executeUpdate(stmt);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+
+        }
+    }
+
+    public void insertState(State state) {
+        String query = "INSERT INTO States (StateName, CountryID) VALUES (?, ?);";
+
+        try {
+            PreparedStatement stmt = conn.prepareStatement(query);
+
+            stmt.setString(1, state.getStateName());
+            stmt.setInt(2, state.getCountry().getID());
+
+            executeUpdate(stmt);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }
