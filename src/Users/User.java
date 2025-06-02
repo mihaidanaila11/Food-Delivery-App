@@ -1,7 +1,10 @@
 package Users;
 
 import Auth.PasswordHash;
+import Stores.Restaurant;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -13,6 +16,9 @@ public class User {
     private final PasswordHash passwordHash;
     private boolean regComplete;
 
+    public enum Roles {USER, ADMIN, OWNER}
+    private HashSet<Roles> userRoles;
+
     public User(User user) {
         this.id = user.id;
         this.firstName = user.firstName;
@@ -22,9 +28,6 @@ public class User {
         this.userRoles = new HashSet<>(user.userRoles);
         this.regComplete = user.regComplete;
     }
-
-    public enum Roles {USER, ADMIN}
-    private HashSet<Roles> userRoles;
 
     public User(String firstName, String lastName, String email, PasswordHash passwordHash, boolean regComplete) {
         this.id = UUID.randomUUID();

@@ -6,11 +6,12 @@ import Menu.Options.Auth.Logout;
 import Menu.Options.Auth.Register;
 import Menu.Options.Auth.ResumeRegister;
 import Menu.Options.Exit;
+import Menu.Options.Owner.CreateRestaurant;
+import Menu.Options.Owner.OwnedRestaurants;
 import Users.User;
 import java.util.ArrayList;
 
 import Auth.AppContext;
-import database.PopulateLocations;
 
 public class Main {
 
@@ -46,6 +47,8 @@ public class Main {
 
                 ArrayList<MenuOption> options = new ArrayList<>();
                 options.add(new AdminPanel().addNeededRole(User.Roles.ADMIN));
+                options.add(new OwnedRestaurants().addNeededRole(User.Roles.OWNER));
+                options.add(new CreateRestaurant().addNeededRole(User.Roles.OWNER));
                 options.add(new Logout());
                 options.add(new Exit());
                 Menu menu = new Menu(options);

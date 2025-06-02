@@ -3,7 +3,9 @@ package Auth;
 import Exceptions.AuthExceptions.IncorrectPassword;
 import Exceptions.AuthExceptions.UserAlreadyExsists;
 import Exceptions.AuthExceptions.UserDoesNotExist;
+import Stores.Restaurant;
 import Users.Client;
+import Users.Owner;
 import Users.User;
 import database.DatabaseHandler;
 
@@ -20,6 +22,8 @@ public class Auth {
     private final AuthUser authUser;
 
     private User loggedUser;
+    private Owner loggedOwner;
+    private Client loggedClient;
     private final DatabaseHandler db;
 
     public Auth(DatabaseHandler db) {
@@ -47,6 +51,18 @@ public class Auth {
 
         db.updateRegistrationComplete(newClient, true);
         db.insertClient(newClient);
+        loggedUser.setRegComplete(true);
+    }
+
+    public void completeOwnerRegistration(Owner newOwner) throws SQLException {
+        newOwner.addRole(User.Roles.OWNER);
+
+        db.updateRegistrationComplete(newOwner, true);
+        db.insertOwner(newOwner);
+        db.updateUserRoles(newOwner);
+        setLoggedOwner(newOwner);
+
+        loggedUser.setRegComplete(true);
     }
 
     public void loginUser(String email, String password) throws NoSuchAlgorithmException, InvalidKeySpecException, SQLException {
@@ -83,11 +99,18 @@ public class Auth {
             if(roleName.next()){
                 userRoles.add(User.Roles.valueOf(roleName.getString("roleName")));
             }
-
-
         }
 
         user.setUserRoles(userRoles);
+
+        try{
+            loggedOwner = db.fetchOwnerById(user.getId());
+        } catch (UserDoesNotExist ignored) {}
+
+        try{
+            loggedClient = db.fetchClientById(user.getId());
+        } catch (UserDoesNotExist ignored) {}
+
 
         loggedUser = user;
     }
@@ -165,4 +188,11 @@ public class Auth {
     public User getUserByEmail(String email) throws SQLException {
         return db.fetchUserByEmail(email);
     }
+
+    private void setLoggedOwner(Owner loggedOwner) {
+        this.loggedOwner = loggedOwner;
+        setLoggedUser(loggedOwner);
+    }
+
+    public Owner getLoggedOwner() { return loggedOwner; }
 }

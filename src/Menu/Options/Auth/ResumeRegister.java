@@ -17,6 +17,7 @@ public class ResumeRegister extends MenuOption {
         System.out.println("What are you registering as?");
 
         options.add(new RegisterClient());
+        options.add(new RegisterOwner());
 
         Menu menu = new Menu(options);
         menu.show(ctx);

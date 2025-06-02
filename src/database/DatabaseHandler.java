@@ -5,7 +5,10 @@ import Exceptions.AuthExceptions.UserDoesNotExist;
 import Location.City;
 import Location.Location;
 import Location.State;
+import Stores.Restaurant;
+import Stores.RestaurantOperations;
 import Users.Client;
+import Users.Owner;
 import Users.User;
 
 import java.sql.*;
@@ -104,42 +107,35 @@ public class DatabaseHandler {
 
     public void updateUserRoles(User user) throws SQLException {
         HashSet<User.Roles> roles = user.getRoles();
-        ArrayList<String> rolesArray = new ArrayList<>();
-
-        for(User.Roles role : roles){
-            rolesArray.add(role.name());
-        }
 
         HashMap<String, Integer> roleIds = new HashMap<>();
 
         String query = "SELECT RoleID FROM Roles WHERE RoleName = ?;";
         PreparedStatement stmt = conn.prepareStatement(query);
-        for(String role : rolesArray){
+        for(User.Roles role : roles){
             try{
-                stmt.setString(1, role);
+                stmt.setString(1, role.name());
                 ResultSet rs = stmt.executeQuery();
 
                 if(rs.next()){
-                    roleIds.put(role, rs.getInt("RoleID"));
+                    roleIds.put(role.name(), rs.getInt("RoleID"));
                 }
             } catch (RuntimeException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        for(String role : rolesArray) {
+        for(User.Roles role : roles) {
             try {
                 String insertQuery =    "INSERT INTO UserRoles (UserID, RoleId) " +
                                         "VALUES (?, ?);";
                 PreparedStatement insertStmt = conn.prepareStatement(insertQuery);
                 insertStmt.setString(1, user.getId().toString());
-                insertStmt.setInt(2, roleIds.get(role));
+                insertStmt.setInt(2, roleIds.get(role.name()));
 
                 executeUpdate(insertStmt);
 
-            } catch (SQLException ignored) {
-
-            }
+            } catch (SQLException ignored) {}
         }
     }
 
@@ -184,6 +180,26 @@ public class DatabaseHandler {
                         fetchedUser.getBytes("passwordSalt")
                 ),
                 fetchedUser.getBoolean("reqComplete")
+        );
+    }
+
+    public User fetchUserById(String id) throws SQLException {
+        ResultSet fetchedUser = selectAllWhere("Users", "userId", id);
+
+        if (!fetchedUser.next()) {
+            throw new UserDoesNotExist();
+        }
+
+        return new User(
+                fetchedUser.getString("userID"),
+                fetchedUser.getString("firstName"),
+                fetchedUser.getString("lastName"),
+                fetchedUser.getString("email"),
+                new PasswordHash(
+                        fetchedUser.getBytes("passwordHash"),
+                        fetchedUser.getBytes("passwordSalt")
+                ),
+                fetchedUser.getBoolean("regComplete")
         );
     }
 
@@ -381,5 +397,120 @@ public class DatabaseHandler {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void insertOwner(Owner newOwner) throws SQLException {
+        String query = "INSERT INTO Owners (UserID) VALUES (?);";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, newOwner.getId().toString());
+        executeUpdate(stmt);
+
+    }
+
+    public ResultSet selectAllOrderedBy(String tableName, String orderByColumn) throws SQLException {
+        String query = "SELECT * FROM " + tableName + " ORDER BY " + orderByColumn + ";";
+        Statement statement = conn.createStatement();
+        return statement.executeQuery(query);
+    }
+
+    public ResultSet selectAllWhereOrdered(String tableName, String orderByColumn,
+                                           String keyColumn, int keyValue) throws SQLException {
+        String query = "SELECT * FROM " + tableName + " WHERE " + keyColumn + " = " + keyValue +
+                " ORDER BY " + orderByColumn + ";";
+
+        Statement statement = conn.createStatement();
+        return statement.executeQuery(query);
+    }
+
+    public void insertRestaurant(Restaurant restaurant) throws SQLException {
+        String query = "INSERT INTO Restaurants (RestaurantID, RestaurantName, LocationID) " +
+                "VALUES (?, ?, ?);";
+
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, restaurant.getID().toString());
+        stmt.setString(2, restaurant.getName());
+        stmt.setInt(3, getOrInsertLocation(restaurant.getLocation()));
+
+        executeUpdate(stmt);
+
+    }
+
+    public void addRestaurantOwner(Restaurant restaurant, Owner owner) throws SQLException {
+        String query = "INSERT INTO ownsRestaurant (RestaurantID, UserID) VALUES (?, ?);";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, restaurant.getID().toString());
+        stmt.setString(2, owner.getId().toString());
+
+        executeUpdate(stmt);
+
+    }
+
+    private ArrayList<Restaurant> fetchRestaurantsByOwnerId(UUID id) throws SQLException {
+        String query = "SELECT * FROM Restaurants r " +
+                "JOIN ownsRestaurant o ON r.RestaurantID = o.RestaurantID " +
+                "WHERE o.UserID = ?;";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, id.toString());
+        ResultSet rs = stmt.executeQuery();
+
+        ArrayList<Restaurant> restaurants = new ArrayList<>();
+        while(rs.next()) {
+            Restaurant restaurant = new Restaurant(
+                    rs.getString("RestaurantName"),
+                    fetchLocationById(rs.getInt("LocationID"))
+            );
+            restaurant.setID(UUID.fromString(rs.getString("RestaurantID")));
+            restaurants.add(restaurant);
+        }
+        return restaurants;
+    }
+
+    public Owner fetchOwnerById(UUID id) throws SQLException {
+        String query = "SELECT * FROM Owners WHERE UserID = ?;";
+
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, id.toString());
+        ResultSet rs = stmt.executeQuery();
+
+        if(rs.next()) {
+            Owner newOwner = new Owner(
+                    fetchUserById(rs.getString("UserID"))
+            );
+
+            ArrayList<Restaurant> ownedRestaurants = fetchRestaurantsByOwnerId(newOwner.getId());
+
+            for(Restaurant restaurant : ownedRestaurants) {
+                restaurant.setOwner(newOwner);
+            }
+
+            newOwner.setRestaurants(ownedRestaurants);
+
+            return newOwner;
+        } else {
+            throw new UserDoesNotExist();
+        }
+    }
+
+    public Client fetchClientById(UUID id) throws SQLException {
+        String query = "SELECT * FROM Clients WHERE UserID = ?;";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, id.toString());
+        ResultSet rs = stmt.executeQuery();
+
+        if(rs.next()) {
+            return new Client(
+                    fetchUserById(rs.getString("UserID")),
+                    fetchLocationById(rs.getInt("LocationID"))
+            );
+        } else {
+            throw new UserDoesNotExist();
+        }
+
     }
 }
