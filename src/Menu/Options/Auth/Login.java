@@ -20,9 +20,10 @@ public class Login extends MenuOption {
         System.out.println("Enter your password");
         String password = scanner.nextLine();
         try{
-            ctx.getAuth().loginClient(email, password);
+            ctx.getAuth().loginUser(email, password);
         } catch (Exception e){
             System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 }

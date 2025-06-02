@@ -1,67 +1,43 @@
 package Location;
 
 public class Location {
-    private String Street;
-    private String City;
-    private String State;
-    private String PostalCode;
-    private String Country;
-    private int Number;
+    private final Integer locationID = null;
+    private String street;
+    private City city;
+    private String postalCode;
+    private int locationNumber;
 
-    public Location(String street, String city, String state, String postalCode, String country, int number) {
-        Street = street;
-        City = city;
-        State = state;
-        PostalCode = postalCode;
-        Country = country;
-        Number = number;
+    public Location(City city, String street, String postalCode, int number) {
+        this.street = street;
+        this.postalCode = postalCode;
+        locationNumber = number;
+        this.city = city;
     }
 
     public String getStreet() {
-        return Street;
-    }
-
-    public String getCity() {
-        return City;
-    }
-
-    public String getState() {
-        return State;
+        return street;
     }
 
     public String getPostalCode() {
-        return PostalCode;
+        return postalCode;
     }
 
-    public String getCountry() {
-        return Country;
-    }
 
-    public int getNumber() {
-        return Number;
+    public int getLocationNumber() {
+        return locationNumber;
     }
 
     public void setStreet(String street) {
-        Street = street;
-    }
-
-    public void setCity(String city) {
-        City = city;
-    }
-
-    public void setState(String state) {
-        State = state;
+        this.street = street;
     }
 
     public void setPostalCode(String postalCode) {
-        PostalCode = postalCode;
+        this.postalCode = postalCode;
     }
 
-    public void setCountry(String country) {
-        Country = country;
+    public void setLocationNumber(int locationNumber) {
+        this.locationNumber = locationNumber;
     }
 
-    public void setNumber(int number) {
-        Number = number;
-    }
+    public City getCity() { return city; }
 }

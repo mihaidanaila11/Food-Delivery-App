@@ -1,6 +1,7 @@
 package Menu;
 
 import Auth.AppContext;
+import Exceptions.MenuExceptions.InvalidInput;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -85,5 +86,56 @@ public class Menu {
         }
         filteredOptions.get(Integer.parseInt(option) - 1).action(ctx);
 
+    }
+
+    public static <T> T selectFromList(ArrayList<T> options){
+        Scanner scanner = new Scanner(System.in);
+
+
+        for (int i = 0; i < options.size(); i++) {
+            System.out.println((i + 1) + ". " + options.get(i));
+        }
+
+        System.out.println("Enter the number of your country:");
+        int countryIndex = -1;
+        try {
+            countryIndex = Integer.parseInt(scanner.nextLine()) - 1;
+        } catch (NumberFormatException e) {
+            throw new InvalidInput();
+        }
+
+        if (countryIndex < 0 || countryIndex >= options.size()) {
+            throw new InvalidInput();
+        }
+
+        return options.get(countryIndex);
+    }
+
+    public static String getStringInput(){
+        Scanner scanner = new Scanner(System.in);
+
+        String input =  scanner.nextLine();
+
+        if(input == null || input.isEmpty()){
+            throw new InvalidInput();
+        }
+
+        return input;
+    }
+
+    public static int getIntInput(){
+        Scanner scanner = new Scanner(System.in);
+
+        String input = scanner.nextLine();
+
+        if(input == null || input.isEmpty()){
+            throw new InvalidInput();
+        }
+
+        try{
+            return Integer.parseInt(input);
+        } catch (NumberFormatException e){
+            throw new InvalidInput();
+        }
     }
 }

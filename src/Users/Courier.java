@@ -13,8 +13,8 @@ public class Courier extends User {
     private Vehicle vehicle;
 
     public Courier(String firstName, String lastName, String email, PasswordHash passwordHash,
-                   String companyName, String licensePlate, Vehicle vehicle) {
-        super(firstName, lastName, email, passwordHash);
+                   String companyName, String licensePlate, Vehicle vehicle, boolean regComplete) {
+        super(firstName, lastName, email, passwordHash, regComplete);
         this.companyName = companyName;
         this.licensePlate = licensePlate;
         this.vehicle = vehicle;

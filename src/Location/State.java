@@ -23,4 +23,9 @@ public class State {
     public void setID(int stateID) {
         this.stateID = stateID;
     }
+
+    @Override
+    public String toString() {
+        return stateName;
+    }
 }

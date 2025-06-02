@@ -30,7 +30,7 @@ public class Register extends MenuOption {
         String password = scanner.nextLine();
 
         try {
-            ctx.getAuth().registerClient(firstName, lastName, email, password);
+            ctx.getAuth().registerUser(firstName, lastName, email, password);
         } catch (UserAlreadyExsists e) {
             System.out.println(e.getMessage());
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {

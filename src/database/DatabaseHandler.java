@@ -3,6 +3,7 @@ package database;
 import Auth.PasswordHash;
 import Exceptions.AuthExceptions.UserDoesNotExist;
 import Location.City;
+import Location.Location;
 import Location.State;
 import Users.Client;
 import Users.User;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
+
+import Location.Country;
 
 public class DatabaseHandler {
     private Connection conn = null;
@@ -73,7 +76,7 @@ public class DatabaseHandler {
         return query.toString();
     }
 
-    private void insertUser(User user) throws SQLException {
+    public void insertUser(User user) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement(
                 "INSERT INTO Users (userID, firstname, lastname, passwordhash, passwordsalt, email) " +
                         "VALUES (?, ?, ?, ?, ?, ?);");
@@ -88,11 +91,15 @@ public class DatabaseHandler {
     }
 
     public void insertClient(Client client) throws SQLException {
-        insertUser(client);
+        String query = "INSERT INTO Clients (UserID, LocationID, PhoneNumber) " +
+                "VALUES (?, ?, NULL);";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, client.getId().toString());
+        stmt.setInt(2, getOrInsertLocation(client.getLocation()));
         System.out.println("Client inserted: " + client.getId());
-        executeUpdate(getInsertQuery("clients",
-                new String[]{"UserID", "LocationID", "PhoneNumber"},
-                new String[]{client.getId().toString(), "NULL", "NULL"}));
+
+        executeUpdate(stmt);
     }
 
     public void updateUserRoles(User user) throws SQLException {
@@ -137,7 +144,7 @@ public class DatabaseHandler {
     }
 
     public ResultSet selectAllWhere(String tableName, String keyColumn, String keyValue) throws SQLException {
-        String query = "SELECT * FROM " + tableName + " WHERE " + keyColumn + " = '" + keyValue + "`';";
+        String query = "SELECT * FROM " + tableName + " WHERE " + keyColumn + " = '" + keyValue + "';";
         Statement statement = conn.createStatement();
         return statement.executeQuery(query);
     }
@@ -175,7 +182,8 @@ public class DatabaseHandler {
                 new PasswordHash(
                         fetchedUser.getBytes("passwordHash"),
                         fetchedUser.getBytes("passwordSalt")
-                )
+                ),
+                fetchedUser.getBoolean("reqComplete")
         );
     }
 
@@ -194,7 +202,8 @@ public class DatabaseHandler {
                 new PasswordHash(
                         fetchedUser.getBytes("passwordHash"),
                         fetchedUser.getBytes("passwordSalt")
-                )
+                ),
+                fetchedUser.getBoolean("reqComplete")
         );
     }
 
@@ -234,6 +243,139 @@ public class DatabaseHandler {
             stmt.setString(1, state.getStateName());
             stmt.setInt(2, state.getCountry().getID());
 
+            executeUpdate(stmt);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private int getOrInsertLocation(Location location) throws SQLException {
+        String query = "SELECT LocationID FROM Locations WHERE CityID = ? " +
+                "AND UPPER(StreetName) = UPPER(?) " +
+                "AND UPPER(PostalCode) = UPPER(?) " +
+                "AND LocationNumber = ?;";
+
+
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, location.getCity().getID());
+            stmt.setString(2, location.getStreet());
+            stmt.setString(3, location.getPostalCode());
+            stmt.setInt(4, location.getLocationNumber());
+
+            ResultSet rs = stmt.executeQuery();
+
+            if(rs.next()){
+                return rs.getInt("LocationID");
+            } else {
+                String insertQuery = "INSERT INTO Locations (CityID, StreetName, PostalCode, LocationNumber) " +
+                        "VALUES (?, ?, ?, ?);";
+                PreparedStatement insertStmt = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
+                insertStmt.setInt(1, location.getCity().getID());
+                insertStmt.setString(2, location.getStreet());
+                insertStmt.setString(3, location.getPostalCode());
+                insertStmt.setInt(4, location.getLocationNumber());
+
+                executeUpdate(insertStmt);
+
+                ResultSet generatedKeys = insertStmt.getGeneratedKeys();
+                if(generatedKeys.next()){
+                    return generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Inserting location failed, no ID obtained.");
+                }
+            }
+    }
+
+    public Country fetchCountryById(int countryId) throws SQLException {
+        String query = "SELECT * FROM Countries WHERE CountryID = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setInt(1, countryId);
+        ResultSet rs = stmt.executeQuery();
+
+        if(rs.next()) {
+            return new Country(
+                    rs.getString("CountryName"),
+                    rs.getInt("CountryID")
+            );
+        } else {
+            throw new SQLException("Country not found with ID: " + countryId);
+        }
+    }
+
+    public State fetchStateById(int stateId) throws SQLException {
+        String query = "SELECT * FROM States WHERE StateID = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setInt(1, stateId);
+        ResultSet rs = stmt.executeQuery();
+
+        if(rs.next()) {
+            return new State(
+                    rs.getInt("StateID"),
+                    rs.getString("StateName"),
+                    fetchCountryById(rs.getInt("CountryID"))
+            );
+        } else {
+            throw new SQLException("State not found with ID: " + stateId);
+        }
+    }
+
+    public City fetchCityById(int cityId) throws SQLException {
+        String query = "SELECT * FROM Cities WHERE CityID = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setInt(1, cityId);
+        ResultSet rs = stmt.executeQuery();
+
+        if(rs.next()) {
+            return new City(
+                    rs.getInt("CityID"),
+                    rs.getString("CityName"),
+                    fetchStateById(rs.getInt("StateID"))
+            );
+        } else {
+            throw new SQLException("City not found with ID: " + cityId);
+        }
+    }
+
+    public Location fetchLocationById(int locationId) throws SQLException {
+        String query = "SELECT * FROM Locations WHERE LocationID = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setInt(1, locationId);
+        ResultSet rs = stmt.executeQuery();
+
+        if(rs.next()) {
+            return new Location(
+                    fetchCityById(rs.getInt("CityID")),
+                    rs.getString("StreetName"),
+                    rs.getString("PostalCode"),
+                    rs.getInt("LocationNumber")
+            );
+        } else {
+            throw new SQLException("Location not found with ID: " + locationId);
+        }
+    }
+
+    public void setClientLocation(Client client, Location location) {
+        String query = "UPDATE Clients SET locationID = ? WHERE userID = ?;";
+
+        try {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, getOrInsertLocation(location));
+            stmt.setString(2, client.getId().toString());
+            executeUpdate(stmt);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void updateRegistrationComplete(User user, boolean b) {
+        String query = "UPDATE Users SET regComplete = ? WHERE userID = ?;";
+
+        try {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setBoolean(1, b);
+            stmt.setString(2, user.getId().toString());
             executeUpdate(stmt);
         } catch (SQLException e) {
             System.out.println(e.getMessage());

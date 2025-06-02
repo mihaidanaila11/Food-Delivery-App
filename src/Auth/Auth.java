@@ -13,47 +13,50 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
 public class Auth {
-    private final AuthClient authClient;
+    private final AuthUser authUser;
 
     private User loggedUser;
     private final DatabaseHandler db;
 
     public Auth(DatabaseHandler db) {
-        authClient = new AuthClient();
+        authUser = new AuthUser();
         loggedUser = null;
         this.db = db;
     }
 
-    public User registerClient(String firstName, String lastName, String email, String password)
+    public void registerUser(String firstName, String lastName, String email, String password)
             throws NoSuchAlgorithmException, InvalidKeySpecException, UserAlreadyExsists, SQLException {
 
         if (db.selectAllWhere("Users", "email", email).next()) {
             throw new UserAlreadyExsists();
         }
 
-        Client newClient = authClient.register(firstName, lastName, email, password);
+        User newUser = authUser.register(firstName, lastName, email, password);
 
-        db.insertClient(newClient);
-        db.updateUserRoles(newClient);
-
-
-        setLoggedUser(newClient);
-        return newClient;
+        db.insertUser(newUser);
+        db.updateUserRoles(newUser);
+        setLoggedUser(newUser);
     }
 
-    public void loginClient(String email, String password) throws NoSuchAlgorithmException, InvalidKeySpecException, SQLException {
+    public void completeClientRegistration(Client newClient) throws SQLException {
+        db.setClientLocation(newClient, newClient.getLocation());
+
+        db.updateRegistrationComplete(newClient, true);
+        db.insertClient(newClient);
+    }
+
+    public void loginUser(String email, String password) throws NoSuchAlgorithmException, InvalidKeySpecException, SQLException {
         ResultSet fetchedUser = db.selectAllWhere("Users", "email", email);
 
         if (!fetchedUser.next()) {
             throw new UserDoesNotExist();
         }
 
-        Client client = new Client(
+        User user = new User(
                 fetchedUser.getString("userID"),
                 fetchedUser.getString("firstName"),
                 fetchedUser.getString("lastName"),
@@ -61,14 +64,15 @@ public class Auth {
                 new PasswordHash(
                         fetchedUser.getBytes("passwordHash"),
                         fetchedUser.getBytes("passwordSalt")
-                )
+                ),
+                fetchedUser.getBoolean("regComplete")
         );
 
-        if(!authClient.checkPassword(password, client.getPasswordHash())){
+        if(!authUser.checkPassword(password, user.getPasswordHash())){
             throw new IncorrectPassword();
         }
 
-        ResultSet userRolesIds = db.selectAllWhere("UserRoles", "userID", client.getId().toString());
+        ResultSet userRolesIds = db.selectAllWhere("UserRoles", "userID", user.getId().toString());
         String getRoleIdQuery = "SELECT RoleName FROM Roles WHERE RoleId = ?;";
         HashSet<User.Roles> userRoles = new HashSet<>();
         while(userRolesIds.next()){
@@ -83,9 +87,9 @@ public class Auth {
 
         }
 
-        client.setUserRoles(userRoles);
+        user.setUserRoles(userRoles);
 
-        loggedUser = client;
+        loggedUser = user;
     }
 
     public void logout(){
@@ -148,7 +152,8 @@ public class Auth {
                         new PasswordHash(
                                 fetchedUsers.getBytes("passwordHash"),
                                 fetchedUsers.getBytes("passwordSalt")
-                        )
+                        ),
+                        fetchedUsers.getBoolean("regComplete")
                 ));
             }
         } catch (SQLException e) {

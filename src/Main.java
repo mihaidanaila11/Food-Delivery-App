@@ -4,15 +4,18 @@ import Menu.Options.Admin.AdminPanel;
 import Menu.Options.Auth.Login;
 import Menu.Options.Auth.Logout;
 import Menu.Options.Auth.Register;
+import Menu.Options.Auth.ResumeRegister;
 import Menu.Options.Exit;
 import Users.User;
 import java.util.ArrayList;
 
 import Auth.AppContext;
+import database.PopulateLocations;
 
 public class Main {
 
     public static void main(String[] args) {
+
         AppContext context;
 
         try{
@@ -35,6 +38,11 @@ public class Main {
             }
             else{
                 User loggedUser = context.getAuth().getLoggedUser();
+
+                if(!loggedUser.isRegComplete()){
+                    MenuOption completeRegistration = new ResumeRegister();
+                    completeRegistration.action(context);
+                }
 
                 ArrayList<MenuOption> options = new ArrayList<>();
                 options.add(new AdminPanel().addNeededRole(User.Roles.ADMIN));

@@ -7,8 +7,9 @@ import java.util.List;
 public class Owner extends User {
     private List<Restaurant> restaurants;
 
-    public Owner(String firstName, String lastName, String email, PasswordHash passwordHash, List<Restaurant> restaurants) {
-        super(firstName, lastName, email, passwordHash);
+    public Owner(String firstName, String lastName, String email, PasswordHash passwordHash, List<Restaurant> restaurants,
+                 boolean regComplete) {
+        super(firstName, lastName, email, passwordHash, regComplete);
         this.restaurants = restaurants;
     }
 
