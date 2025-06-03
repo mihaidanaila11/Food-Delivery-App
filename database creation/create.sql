@@ -137,8 +137,8 @@ CREATE table OwnsRestaurant(
     
     CONSTRAINT FK_OwnsRestaurant_RestaurantID FOREIGN KEY (RestaurantID)
     REFERENCES Restaurants (RestaurantID)
+    ON DELETE CASCADE
 );
-
 
 
 CREATE table Orders(
@@ -160,7 +160,10 @@ CREATE table Orders(
     
     CONSTRAINT FK_Orders_RestaurantID FOREIGN KEY (RestaurantID)
     REFERENCES Restaurants (RestaurantID)
+    ON DELETE CASCADE
 );
+
+
 
 CREATE table Products(
 	ProductID varchar(40),
@@ -173,6 +176,7 @@ CREATE table Products(
     
     CONSTRAINT FK_Products_RestaurantID FOREIGN KEY (RestaurantID)
     REFERENCES Restaurants (RestaurantID)
+    ON DELETE CASCADE
 );
 
 CREATE table OrderContainedProducts(
