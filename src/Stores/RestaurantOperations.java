@@ -1,5 +1,6 @@
 package Stores;
 
+import Auth.AppContext;
 import Location.City;
 import Location.Location;
 import Products.Product;
@@ -47,6 +48,24 @@ public class RestaurantOperations {
         }
 
         restaurant.setName(newName);
-        db.updateRestaurantName(restaurant.getID(), newName);
+        db.updateRestaurantName(restaurant, newName);
+    }
+
+    public static void changeDescription(Restaurant restaurant, String newDescription, DatabaseHandler db) throws SQLException {
+        if (restaurant == null || newDescription == null || newDescription.isEmpty()) {
+            throw new IllegalArgumentException("Invalid restaurant or name");
+        }
+
+        restaurant.setDescription(newDescription);
+        db.updateRestaurantDescription(restaurant, newDescription);
+    }
+
+    public static void delete(Restaurant restaurant, DatabaseHandler db, AppContext ctx) throws SQLException {
+        if (restaurant == null) {
+            throw new IllegalArgumentException("Invalid restaurant");
+        }
+
+        ctx.getAuth().getLoggedOwner().removeRestaurant(restaurant);
+        db.deleteRestaurant(restaurant);
     }
 }

@@ -61,7 +61,7 @@ public class Restaurant {
         this.location = location;
     }
 
-    public void setProducts(List<Product> products) {
+    public void setProducts(ArrayList<Product> products) {
         this.products = products;
     }
 
@@ -86,5 +86,9 @@ public class Restaurant {
 
     public void addProduct(Product product) {
         this.products.add(product);
+    }
+
+    public void setDescription(String newDescription) {
+        this.description = newDescription;
     }
 }

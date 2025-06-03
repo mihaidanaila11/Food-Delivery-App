@@ -482,6 +482,19 @@ public class DatabaseHandler {
                     fetchLocationById(rs.getInt("LocationID"))
             );
             restaurant.setID(UUID.fromString(rs.getString("RestaurantID")));
+
+            ArrayList <Product> products = new ArrayList<>();
+            ResultSet productRs = fetchProductsByRestaurant(restaurant);
+            while(productRs.next()) {
+                Product product = new Product(
+                        productRs.getString("ProductName"),
+                        productRs.getFloat("Price"),
+                        productRs.getString("ProductDescription")
+                );
+                products.add(product);
+            }
+
+            restaurant.setProducts(products);
             restaurants.add(restaurant);
         }
         return restaurants;
@@ -578,17 +591,30 @@ public class DatabaseHandler {
         executeUpdate(stmt);
     }
 
-    public void updateRestaurantName(UUID id, String newName) {
+    public void updateRestaurantName(Restaurant restaurant, String newName) throws SQLException {
         String query = "UPDATE Restaurants SET RestaurantName = ? WHERE RestaurantID = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, newName);
+        stmt.setString(2, restaurant.getID().toString());
+        executeUpdate(stmt);
 
-        try {
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, newName);
-            stmt.setString(2, id.toString());
-            executeUpdate(stmt);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
+    }
+
+    public void updateRestaurantDescription(Restaurant restaurant, String newDescription) throws SQLException {
+        String query = "UPDATE Restaurants SET Description = ? WHERE RestaurantID = ?;";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, newDescription);
+        stmt.setString(2, restaurant.getID().toString());
+        executeUpdate(stmt);
+
+    }
+
+    public void deleteRestaurant(Restaurant restaurant) throws SQLException {
+        String query = "DELETE FROM Restaurants WHERE RestaurantID = ?;";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, restaurant.getID().toString());
+        executeUpdate(stmt);
     }
 }
