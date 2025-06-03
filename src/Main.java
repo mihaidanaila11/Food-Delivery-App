@@ -8,6 +8,7 @@ import Menu.Options.Auth.ResumeRegister;
 import Menu.Options.Exit;
 import Menu.Options.Owner.CreateRestaurant;
 import Menu.Options.Owner.OwnedRestaurants;
+import Menu.Options.Restaurants.ViewRestaurants;
 import Users.User;
 import java.util.ArrayList;
 
@@ -49,6 +50,7 @@ public class Main {
                 options.add(new AdminPanel().addNeededRole(User.Roles.ADMIN));
                 options.add(new OwnedRestaurants().addNeededRole(User.Roles.OWNER));
                 options.add(new CreateRestaurant().addNeededRole(User.Roles.OWNER));
+                options.add(new ViewRestaurants());
                 options.add(new Logout());
                 options.add(new Exit());
                 Menu menu = new Menu(options);

@@ -14,6 +14,7 @@ public class Restaurant {
     private Location location;
     private List<Product> products;
     private Owner owner;
+    private String description;
 
     public Restaurant(String name, Location location, ArrayList<Product> products) {
         this.name = name;
@@ -21,16 +22,22 @@ public class Restaurant {
         this.products = products;
     }
 
-    public Restaurant(String name, Location location, Owner owner) {
+    public Restaurant(String name, Location location, Owner owner, String description) {
         this.name = name;
         this.location = location;
-
         this.owner = owner;
+        this.description = description;
     }
 
     public Restaurant(String name, Location location) {
         this.name = name;
         this.location = location;
+    }
+
+    public Restaurant(String name, Location location, String description) {
+        this.name = name;
+        this.location = location;
+        this.description = description;
     }
 
 
@@ -71,4 +78,9 @@ public class Restaurant {
     public void setOwner(Owner owner) {
         this.owner = owner;
     }
+
+    public String getDescription() { return description; }
+
+    @Override
+    public String toString(){ return name; }
 }

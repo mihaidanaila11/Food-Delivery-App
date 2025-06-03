@@ -31,10 +31,14 @@ public class CreateRestaurant extends MenuOption {
             return;
         }
 
+        System.out.println("Enter a description for your restaurant:");
+        String description = Menu.Menu.getStringInput();
+
         Restaurant restaurant = new Restaurant(
                 restaurantName,
                 location,
-                ctx.getAuth().getLoggedOwner()
+                ctx.getAuth().getLoggedOwner(),
+                description
         );
 
         try{

@@ -21,6 +21,7 @@ public class OwnedRestaurants extends MenuOption {
 
         if (restaurants.isEmpty()) {
             System.out.println("You do not own any restaurants.");
+            return;
         }
 
         for(Restaurant restaurant : restaurants){

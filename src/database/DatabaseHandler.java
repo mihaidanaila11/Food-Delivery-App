@@ -424,14 +424,15 @@ public class DatabaseHandler {
     }
 
     public void insertRestaurant(Restaurant restaurant) throws SQLException {
-        String query = "INSERT INTO Restaurants (RestaurantID, RestaurantName, LocationID) " +
-                "VALUES (?, ?, ?);";
+        String query = "INSERT INTO Restaurants (RestaurantID, RestaurantName, LocationID, Description) " +
+                "VALUES (?, ?, ?, ?);";
 
 
         PreparedStatement stmt = conn.prepareStatement(query);
         stmt.setString(1, restaurant.getID().toString());
         stmt.setString(2, restaurant.getName());
         stmt.setInt(3, getOrInsertLocation(restaurant.getLocation()));
+        stmt.setString(4, restaurant.getDescription());
 
         executeUpdate(stmt);
 
@@ -512,5 +513,19 @@ public class DatabaseHandler {
             throw new UserDoesNotExist();
         }
 
+    }
+
+    public ResultSet fetchRestaurantsByCity(City city) throws SQLException {
+        ArrayList<Restaurant> restaurants = new ArrayList<>();
+        String query = "SELECT RestaurantID, RestaurantName, LocationID, Description " +
+                "FROM Restaurants JOIN Locations USING (LocationID) " +
+                "JOIN Cities USING (CityID) " +
+                "WHERE cityID = ?";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setInt(1, city.getID());
+        ResultSet rs = stmt.executeQuery();
+
+        return rs;
     }
 }

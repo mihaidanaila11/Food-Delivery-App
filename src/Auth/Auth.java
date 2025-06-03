@@ -194,5 +194,9 @@ public class Auth {
         setLoggedUser(loggedOwner);
     }
 
+    public Client getLoggedClient(){
+        return loggedClient;
+    }
+
     public Owner getLoggedOwner() { return loggedOwner; }
 }

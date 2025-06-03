@@ -95,8 +95,6 @@ public class Menu {
         for (int i = 0; i < options.size(); i++) {
             System.out.println((i + 1) + ". " + options.get(i));
         }
-
-        System.out.println("Enter the number of your country:");
         int countryIndex = -1;
         try {
             countryIndex = Integer.parseInt(scanner.nextLine()) - 1;
