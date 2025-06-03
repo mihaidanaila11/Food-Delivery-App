@@ -50,13 +50,13 @@ public class Main {
                 options.add(new AdminPanel().addNeededRole(User.Roles.ADMIN));
                 options.add(new OwnedRestaurants().addNeededRole(User.Roles.OWNER));
                 options.add(new CreateRestaurant().addNeededRole(User.Roles.OWNER));
-                options.add(new ViewRestaurants());
+                options.add(new ViewRestaurants().addNeededRole(User.Roles.CLIENT));
                 options.add(new Logout());
                 options.add(new Exit());
                 Menu menu = new Menu(options);
 
                 menu.setBanner("Welcome back, " + loggedUser.getFirstName() + "\n");
-                menu.show(context);
+                menu.show(context, false);
 
             }
         }

@@ -16,7 +16,7 @@ public class User {
     private final PasswordHash passwordHash;
     private boolean regComplete;
 
-    public enum Roles {USER, ADMIN, OWNER}
+    public enum Roles {USER, ADMIN, OWNER, CLIENT}
     private HashSet<Roles> userRoles;
 
     public User(User user) {
@@ -100,8 +100,10 @@ public class User {
         this.userRoles = userRoles;
     }
 
-    public void setRegComplete(boolean regComplete) {
+    public User setRegComplete(boolean regComplete) {
         this.regComplete = regComplete;
+
+        return this;
     }
 
     public boolean isRegComplete() {

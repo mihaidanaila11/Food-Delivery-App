@@ -1,6 +1,7 @@
 package Menu.Utils;
 
 import Auth.AppContext;
+import Exceptions.MenuExceptions.CancelInput;
 import Exceptions.MenuExceptions.InvalidInput;
 import Location.City;
 import Location.Country;

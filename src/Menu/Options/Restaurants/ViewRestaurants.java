@@ -33,7 +33,14 @@ public class ViewRestaurants extends MenuOption {
         }
 
         System.out.println("See a restaurant from your city:");
-        Restaurant selectedRestaurant = Menu.Menu.selectFromList(restaurants);
+
+        Restaurant selectedRestaurant;
+        try{
+            selectedRestaurant = Menu.Menu.selectFromList(restaurants);
+        } catch (Exception e){
+            return;
+        }
+
 
         ShowRestaurant.show(selectedRestaurant);
 

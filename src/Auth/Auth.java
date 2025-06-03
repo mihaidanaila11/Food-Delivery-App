@@ -32,7 +32,7 @@ public class Auth {
         this.db = db;
     }
 
-    public void registerUser(String firstName, String lastName, String email, String password)
+    public User registerUser(String firstName, String lastName, String email, String password)
             throws NoSuchAlgorithmException, InvalidKeySpecException, UserAlreadyExsists, SQLException {
 
         if (db.selectAllWhere("Users", "email", email).next()) {
@@ -44,13 +44,19 @@ public class Auth {
         db.insertUser(newUser);
         db.updateUserRoles(newUser);
         setLoggedUser(newUser);
+
+        return newUser;
     }
 
     public void completeClientRegistration(Client newClient) throws SQLException {
+        newClient.addRole(User.Roles.CLIENT);
         db.setClientLocation(newClient, newClient.getLocation());
 
         db.updateRegistrationComplete(newClient, true);
         db.insertClient(newClient);
+        db.updateUserRoles(newClient);
+        setLoggedClient(newClient);
+
         loggedUser.setRegComplete(true);
     }
 
@@ -132,6 +138,8 @@ public class Auth {
         if(getLoggedUser().getId().equals(fetchedUser.getId())) {
             logout();
         }
+
+        db.deleteUser(fetchedUser);
     }
 
     public void changeLastName(UUID id, String newLastName) throws UserDoesNotExist, SQLException {
@@ -192,6 +200,11 @@ public class Auth {
     private void setLoggedOwner(Owner loggedOwner) {
         this.loggedOwner = loggedOwner;
         setLoggedUser(loggedOwner);
+    }
+
+    private void setLoggedClient(Client loggedClient) {
+        this.loggedClient = loggedClient;
+        setLoggedUser(loggedClient);
     }
 
     public Client getLoggedClient(){

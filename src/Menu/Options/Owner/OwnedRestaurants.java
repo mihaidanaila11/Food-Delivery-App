@@ -1,7 +1,9 @@
 package Menu.Options.Owner;
 
 import Auth.AppContext;
+import Exceptions.MenuExceptions.CancelInput;
 import Menu.MenuOption;
+import Menu.Options.Restaurants.EditRestaurant.EditRestaurant;
 import Stores.Restaurant;
 import Users.Owner;
 
@@ -24,9 +26,20 @@ public class OwnedRestaurants extends MenuOption {
             return;
         }
 
-        for(Restaurant restaurant : restaurants){
-            System.out.println(" - " + restaurant.getName());
+        System.out.println("Select a restaurant to manage:");
+
+        Restaurant selectedRestaurant;
+        try{
+            selectedRestaurant = Menu.Menu.selectFromList(restaurants);
+        } catch (Exception e) {
+            return;
         }
+
+        ctx.setEditingRestaurant(selectedRestaurant);
+
+        MenuOption editRestaurant = new EditRestaurant();
+        editRestaurant.action(ctx);
+
     }
 
 }

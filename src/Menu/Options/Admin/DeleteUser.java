@@ -23,6 +23,7 @@ public class DeleteUser extends MenuOption {
             ctx.getAuth().deleteUser(email);
         } catch (UserDoesNotExist | SQLException e) {
             System.out.println(e.getMessage());
+            return;
         }
 
         System.out.println("User " + " has been deleted");

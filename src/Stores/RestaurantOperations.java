@@ -2,6 +2,8 @@ package Stores;
 
 import Location.City;
 import Location.Location;
+import Products.Product;
+import Products.ProductOperations;
 import Users.Owner;
 import database.DatabaseHandler;
 
@@ -31,9 +33,20 @@ public class RestaurantOperations {
 
             Restaurant restaurant = new Restaurant(name, location, description);
             restaurant.setID(id);
+
+            restaurant.setProducts(ProductOperations.getProductsByRestaurant(restaurant, db));
             restaurants.add(restaurant);
         }
 
         return restaurants;
+    }
+
+    public static void changeName(Restaurant restaurant, String newName, DatabaseHandler db) throws SQLException {
+        if (restaurant == null || newName == null || newName.isEmpty()) {
+            throw new IllegalArgumentException("Invalid restaurant or name");
+        }
+
+        restaurant.setName(newName);
+        db.updateRestaurantName(restaurant.getID(), newName);
     }
 }

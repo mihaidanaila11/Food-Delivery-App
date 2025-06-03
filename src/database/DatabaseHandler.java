@@ -63,9 +63,17 @@ public class DatabaseHandler {
         stmt.executeUpdate(query);
     }
 
+    private void commit(){
+        try {
+            conn.commit();
+        } catch (SQLException ignored){}
+
+    }
+
     private void executeUpdate(PreparedStatement stmt) throws SQLException {
         if (stmt != null) {
             stmt.executeUpdate();
+            commit();
         }
     }
 
@@ -188,7 +196,7 @@ public class DatabaseHandler {
                         fetchedUser.getBytes("passwordHash"),
                         fetchedUser.getBytes("passwordSalt")
                 ),
-                fetchedUser.getBoolean("reqComplete")
+                fetchedUser.getBoolean("regComplete")
         );
     }
 
@@ -228,7 +236,7 @@ public class DatabaseHandler {
                         fetchedUser.getBytes("passwordHash"),
                         fetchedUser.getBytes("passwordSalt")
                 ),
-                fetchedUser.getBoolean("reqComplete")
+                fetchedUser.getBoolean("regComplete")
         );
     }
 
@@ -559,5 +567,28 @@ public class DatabaseHandler {
         stmt.setString(1, restaurant.getID().toString());
         return stmt.executeQuery();
 
+    }
+
+    public void deleteUser(User user) throws SQLException{
+        String query = "DELETE FROM Users WHERE userID = ?;";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, user.getId().toString());
+
+        executeUpdate(stmt);
+    }
+
+    public void updateRestaurantName(UUID id, String newName) {
+        String query = "UPDATE Restaurants SET RestaurantName = ? WHERE RestaurantID = ?;";
+
+        try {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, newName);
+            stmt.setString(2, id.toString());
+            executeUpdate(stmt);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
     }
 }
