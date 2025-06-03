@@ -5,6 +5,7 @@ import Exceptions.AuthExceptions.UserDoesNotExist;
 import Location.City;
 import Location.Location;
 import Location.State;
+import Products.Product;
 import Stores.Restaurant;
 import Stores.RestaurantOperations;
 import Users.Client;
@@ -20,9 +21,17 @@ import java.util.UUID;
 import Location.Country;
 
 public class DatabaseHandler {
+    private static DatabaseHandler instance = null;
     private Connection conn = null;
 
-    public DatabaseHandler() {
+    public static DatabaseHandler getInstance() {
+        if (instance == null) {
+            instance = new DatabaseHandler();
+        }
+        return instance;
+    }
+
+    private DatabaseHandler() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         }
@@ -527,5 +536,28 @@ public class DatabaseHandler {
         ResultSet rs = stmt.executeQuery();
 
         return rs;
+    }
+
+    public void insertProduct(Product product, Restaurant restaurant) throws SQLException{
+        String query = "INSERT INTO Products (ProductID, RestaurantID, ProductName, Price, ProductDescription) " +
+                "VALUES (?, ?, ?, ?, ?);";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, product.getID().toString());
+        stmt.setString(2, restaurant.getID().toString());
+        stmt.setString(3, product.getName());
+        stmt.setFloat(4, product.getPrice());
+        stmt.setString(5, product.getDescription());
+
+        executeUpdate(stmt);
+    }
+
+    public ResultSet fetchProductsByRestaurant(Restaurant restaurant) throws SQLException{
+        String query = "SELECT * FROM Products WHERE RestaurantID = ?;";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, restaurant.getID().toString());
+        return stmt.executeQuery();
+
     }
 }
