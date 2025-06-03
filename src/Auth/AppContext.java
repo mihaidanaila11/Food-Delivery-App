@@ -16,6 +16,7 @@ public class AppContext {
     private final Auth auth;
     private User editingUser;
     private Restaurant editingRestaurant;
+    private Product editingProduct;
     private final DatabaseHandler db;
 
     public AppContext() throws UserAlreadyExsists, NoSuchAlgorithmException, InvalidKeySpecException, SQLException {
@@ -49,4 +50,7 @@ public class AppContext {
     public DatabaseHandler getDb() { return db; }
 
     public void setEditingRestaurant(Restaurant restaurant) { this.editingRestaurant = restaurant; }
+
+    public Product getEditingProduct() { return editingProduct; }
+    public void setEditingProduct(Product product) { this.editingProduct = product; }
 }

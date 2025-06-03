@@ -20,6 +20,7 @@ public class Menu {
         invalidInputs.add("");
     }
 
+
     public String getBanner() { return banner; }
     public void setBanner(String banner) { this.banner = banner; }
 
@@ -131,11 +132,11 @@ public class Menu {
             throw new InvalidInput();
         }
 
-        if (countryIndex < 0 || countryIndex >= options.size()) {
+        if (countryIndex < 0 || countryIndex > options.size()) {
             throw new InvalidInput();
         }
 
-        if (countryIndex == options.size() - 1) {
+        if (countryIndex == options.size()) {
             throw new CancelInput();
         }
 
@@ -165,6 +166,22 @@ public class Menu {
 
         try{
             return Integer.parseInt(input);
+        } catch (NumberFormatException e){
+            throw new InvalidInput();
+        }
+    }
+
+    public static Float getFloatInput() {
+        Scanner scanner = new Scanner(System.in);
+
+        String input = scanner.nextLine();
+
+        if(input == null || input.isEmpty()){
+            throw new InvalidInput();
+        }
+
+        try{
+            return Float.parseFloat(input);
         } catch (NumberFormatException e){
             throw new InvalidInput();
         }

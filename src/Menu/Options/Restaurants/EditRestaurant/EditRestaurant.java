@@ -4,6 +4,7 @@ import Auth.AppContext;
 import Menu.Menu;
 import Menu.MenuOption;
 import Menu.Options.Cancel;
+import Menu.Options.Products.ManageProducts;
 import Menu.Options.Restaurants.ViewRestaurants;
 import Stores.ShowRestaurant;
 
@@ -16,6 +17,7 @@ public class EditRestaurant extends MenuOption {
 
         options.add(new ViewRestaurant());
         options.add(new AddProduct());
+        options.add(new ManageProducts());
         options.add(new ChangeName());
         options.add(new EditDescription());
         options.add(new DeleteRestaurant());

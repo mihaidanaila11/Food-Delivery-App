@@ -12,7 +12,7 @@ public class Restaurant {
     private UUID ID;
     private String name;
     private Location location;
-    private List<Product> products;
+    private ArrayList<Product> products;
     private Owner owner;
     private String description;
 
@@ -49,7 +49,7 @@ public class Restaurant {
         return location;
     }
 
-    public List<Product> getProducts() {
+    public ArrayList<Product> getProducts() {
         return products;
     }
 
@@ -90,5 +90,9 @@ public class Restaurant {
 
     public void setDescription(String newDescription) {
         this.description = newDescription;
+    }
+
+    public void removeProduct(Product product) {
+        this.products.remove(product);
     }
 }
