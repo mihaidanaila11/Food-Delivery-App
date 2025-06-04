@@ -32,4 +32,8 @@ public class UserCart {
     public boolean isEmpty() {
         return cart.isEmpty();
     }
+
+    public void emptyCart() {
+        cart.clear();
+    }
 }

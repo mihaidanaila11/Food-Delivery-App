@@ -1,9 +1,12 @@
 package Menu.Options.Cart;
 
 import Auth.AppContext;
+import Menu.Menu;
 import Menu.MenuOption;
 import Products.Product;
 import Users.UserCart;
+
+import java.util.ArrayList;
 
 public class ViewCart extends MenuOption {
     public ViewCart(){
@@ -23,5 +26,11 @@ public class ViewCart extends MenuOption {
         for (Product item : cart.getProducts()) {
             System.out.println(item.getName() + " - " + cart.getQuantity(item) + " x " + item.getPrice() + "$");
         }
+
+        ArrayList<MenuOption> options = new ArrayList<>();
+        options.add(new PlaceOrder());
+
+        Menu menu = new Menu(options);
+        menu.show(ctx, true);
     }
 }

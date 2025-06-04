@@ -1,16 +1,13 @@
 package Users;
 
-import Auth.PasswordHash;
 import Location.Location;
-import Products.Order;
-import Products.Product;
+import Orders.Order;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class Client extends User{
-    private List<Order> orderHistory;
+    private ArrayList<Order> activeOrders;
     private Location location;
     private UserCart cart;
 
@@ -18,6 +15,7 @@ public class Client extends User{
         super(user);
         this.location = location;
         this.cart = new UserCart();
+        this.activeOrders = new ArrayList<>();
     }
 
     public void setLocation(Location location) { this.location = location; }
@@ -25,5 +23,13 @@ public class Client extends User{
 
     public UserCart getCart() {
         return cart;
+    }
+
+    public void addActiveOrder(Order order) {
+        this.activeOrders.add(order);
+    }
+
+    public ArrayList<Order> getActiveOrders() {
+        return activeOrders;
     }
 }

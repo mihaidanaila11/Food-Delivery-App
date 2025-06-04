@@ -5,6 +5,7 @@ import Exceptions.AuthExceptions.UserDoesNotExist;
 import Location.City;
 import Location.Location;
 import Location.State;
+import Orders.Order;
 import Products.Product;
 import Stores.Restaurant;
 import Stores.RestaurantOperations;
@@ -662,5 +663,46 @@ public class DatabaseHandler {
         stmt.setString(1, product.getID().toString());
         stmt.setString(2, product.getRestaurant().getID().toString());
         executeUpdate(stmt);
+    }
+
+    public ResultSet getAvailableCouriers(Location location) throws SQLException {
+        String query = "SELECT * FROM Couriers " +
+                "WHERE UserID NOT IN (SELECT CourierID FROM Orders WHERE Delivered = false) " +
+                "AND WorkingCityID = ?;";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setInt(1, location.getCity().getID());
+
+        return stmt.executeQuery();
+    }
+
+    public void assignCourierToOrder(UUID orderId, UUID courierId) throws SQLException {
+        String query = "UPDATE Orders SET CourierID = ? WHERE OrderID = ?;";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, courierId.toString());
+        stmt.setString(2, orderId.toString());
+
+        executeUpdate(stmt);
+    }
+
+    public void insertOrder(Order order) throws SQLException {
+        String query = "INSERT INTO Orders (OrderID, ClientID, CourierID, Delivered) " +
+                "VALUES (?, ?, NULL, false);";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, order.getID().toString());
+        stmt.setString(2, order.getClient().getId().toString());
+        executeUpdate(stmt);
+
+        for (Product product : order.getCart().getProducts()) {
+            String insertProductQuery = "INSERT INTO ordercontainedproducts (OrderID, ProductID, Amount) VALUES (?, ?, ?);";
+            PreparedStatement productStmt = conn.prepareStatement(insertProductQuery);
+            productStmt.setString(1, order.getID().toString());
+            productStmt.setString(2, product.getID().toString());
+            productStmt.setInt(3, order.getCart().getQuantity(product));
+            executeUpdate(productStmt);
+        }
+
     }
 }
