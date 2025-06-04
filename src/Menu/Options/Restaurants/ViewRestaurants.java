@@ -2,6 +2,7 @@ package Menu.Options.Restaurants;
 
 import Auth.AppContext;
 import Menu.MenuOption;
+import Menu.Options.Restaurants.ViewRestaurant;
 import Stores.Restaurant;
 import Stores.RestaurantOperations;
 import Stores.ShowRestaurant;
@@ -42,7 +43,8 @@ public class ViewRestaurants extends MenuOption {
         }
 
 
-        ShowRestaurant.show(selectedRestaurant);
-
+        ctx.setEditingRestaurant(selectedRestaurant);
+        MenuOption viewRestaurant = new ViewRestaurant();
+        viewRestaurant.action(ctx);
     }
 }

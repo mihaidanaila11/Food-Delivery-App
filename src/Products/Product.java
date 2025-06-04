@@ -62,4 +62,11 @@ public class Product {
     public Restaurant getRestaurant() {
         return restaurant;
     }
+
+    public void show() {
+        System.out.println("Name: " + name);
+        System.out.println("Price: " + price);
+        System.out.println("Description: " + description);
+        System.out.println("Restaurant: " + restaurant.getName());
+    }
 }
