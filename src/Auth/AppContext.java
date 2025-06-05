@@ -31,9 +31,10 @@ public class AppContext {
             );
 
             db.updateRegistrationComplete(auth.getLoggedUser(), true);
+            this.auth.logout();
         } catch (UserAlreadyExsists ignored) {}
 
-        this.auth.logout();
+
         editingUser = null;
     }
 

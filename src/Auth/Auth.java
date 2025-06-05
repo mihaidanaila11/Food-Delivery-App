@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
 
+import static Logger.Logger.logOperation;
+
 public class Auth {
     private final AuthUser authUser;
 
@@ -60,6 +62,8 @@ public class Auth {
         setLoggedClient(newClient);
 
         loggedUser.setRegComplete(true);
+
+        logOperation("Client " + newClient.getId() + " registered successfully with email: " + newClient.getEmail());
     }
 
     public void completeOwnerRegistration(Owner newOwner) throws SQLException {
@@ -71,6 +75,8 @@ public class Auth {
         setLoggedOwner(newOwner);
 
         loggedUser.setRegComplete(true);
+
+        logOperation("Owner " + newOwner.getId() + " registered successfully with email: " + newOwner.getEmail());
     }
 
     public void completeCourierRegistration(Courier newCourier) throws SQLException {
@@ -82,6 +88,8 @@ public class Auth {
 
         db.updateRegistrationComplete(newCourier, true);
         loggedUser.setRegComplete(true);
+
+        logOperation("Courier " + newCourier.getId() + " registered successfully with email: " + newCourier.getEmail());
     }
 
     public void loginUser(String email, String password) throws NoSuchAlgorithmException, InvalidKeySpecException, SQLException {
@@ -136,13 +144,17 @@ public class Auth {
 
 
         loggedUser = user;
+
+        logOperation("User " + user.getId() + " logged in with email: " + user.getEmail());
     }
 
     public void logout(){
+        logOperation("User " + loggedUser.getId() + " logged out with email: " + loggedUser.getEmail());
         loggedUser = null;
     }
 
     public User getUserById(UUID id) throws SQLException, UserDoesNotExist {
+        logOperation("Fetching user by ID: " + id);
         return db.fetchUserById(id);
     }
 
@@ -157,6 +169,8 @@ public class Auth {
         }
 
         db.deleteUser(fetchedUser);
+
+        logOperation("Deleting user with email: " + email);
     }
 
     public void changeLastName(UUID id, String newLastName) throws UserDoesNotExist, SQLException {
@@ -164,7 +178,7 @@ public class Auth {
         fetchedUser.setLastName(newLastName);
 
         db.updateUser(fetchedUser);
-
+        logOperation("Changing last name for user with ID: " + id + " to: " + newLastName);
     }
 
     public void changeFirstName(UUID id, String newFirstName) throws UserDoesNotExist, SQLException {
@@ -172,7 +186,7 @@ public class Auth {
         fetchedUser.setLastName(newFirstName);
 
         db.updateUser(fetchedUser);
-
+        logOperation("Changing first name for user with ID: " + id + " to: " + newFirstName);
     }
 
     private void setLoggedUser(User loggedUser) {
@@ -207,6 +221,7 @@ public class Auth {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        logOperation("Fetched all users from the database.");
         return users;
     }
 

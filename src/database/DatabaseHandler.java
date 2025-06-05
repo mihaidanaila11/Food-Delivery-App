@@ -19,6 +19,8 @@ import java.util.UUID;
 
 import Location.Country;
 
+import static Logger.Logger.logOperation;
+
 public class DatabaseHandler {
     private static DatabaseHandler instance = null;
     private Connection conn = null;
@@ -74,6 +76,8 @@ public class DatabaseHandler {
             stmt.executeUpdate();
             commit();
         }
+
+        logOperation("Executed update: " + stmt.toString());
     }
 
     private String getInsertQuery(String tableName, String[] columns, String[] values) {

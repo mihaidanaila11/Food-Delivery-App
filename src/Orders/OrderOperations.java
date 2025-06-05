@@ -8,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import static Logger.Logger.logOperation;
+
 public class OrderOperations {
     public static void placeOrder(AppContext ctx, Location orderLocation) throws SQLException {
         OrderCreator orderCreator = new OrderCreator();
@@ -27,6 +29,10 @@ public class OrderOperations {
                 String courierId = availableCouriers.getString("CourierID");
                 ctx.getDb().assignCourierToOrder(order.getID(), UUID.fromString(courierId));
             }
+
+            logOperation("Placed order for client: " + ctx.getAuth().getLoggedClient().getId().toString() +
+                    " with order ID: " + order.id +
+                    " at location: " + orderLocation);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e.getMessage());
@@ -51,6 +57,9 @@ public class OrderOperations {
 
         ctx.getDb().assignCourierToOrder(order.getID(), ctx.getAuth().getLoggedCourier().getId());
         System.out.println("You have accepted the order: " + order);
+
+        logOperation("Courier " + ctx.getAuth().getLoggedCourier().getId() +
+                " has accepted order with ID: " + order.getID());
         return order;
     }
 
@@ -62,5 +71,8 @@ public class OrderOperations {
 
         ctx.getDb().finishOrder(activeOrder);
         System.out.println("Order " + activeOrder.getID() + " has been finished successfully.");
+
+        logOperation("Courier " + ctx.getAuth().getLoggedCourier().getId() +
+                " has finished order with ID: " + activeOrder.getID());
     }
 }

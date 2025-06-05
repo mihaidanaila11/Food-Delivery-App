@@ -9,11 +9,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import static Logger.Logger.logOperation;
+
 public class ProductOperations {
     public static void addProduct(Product product, Restaurant restaurant, DatabaseHandler db)  throws SQLException {
         db.insertProduct(product, restaurant);
 
         restaurant.addProduct(product);
+
+        logOperation("Added product " + product.getName() + " with ID: " + product.getID() + " to restaurant: " + restaurant.getName());
     }
 
     public static ArrayList<Product> getProductsByRestaurant(Restaurant restaurant, DatabaseHandler db) throws SQLException {
@@ -30,6 +34,8 @@ public class ProductOperations {
             ));
         }
 
+        logOperation("Fetched products for restaurant: " + restaurant.getName());
+
         return products;
     }
 
@@ -44,6 +50,8 @@ public class ProductOperations {
 
         product.setName(newName);
         db.updateProductName(product, newName);
+
+        logOperation("Changed product name from " + product.getName() + " to " + newName);
     }
 
     public static void changePrice(Product product, Float newPrice, DatabaseHandler db) throws SQLException {
@@ -51,12 +59,16 @@ public class ProductOperations {
             throw new IllegalArgumentException("Invalid restaurant or name");
         }
 
+        logOperation("Changing product price from " + product.getPrice() + " to " + newPrice);
+
         product.setPrice(newPrice);
         db.updateProductPrice(product, newPrice);
     }
 
     public static void changeDescription(Product product, String newDescription, DatabaseHandler db) throws SQLException {
         validateProductInput(product, newDescription);
+
+        logOperation("Changing product description from " + product.getDescription() + " to " + newDescription);
 
         product.setDescription(newDescription);
         db.updateProductDescription(product, newDescription);
@@ -66,6 +78,8 @@ public class ProductOperations {
         if (product == null) {
             throw new IllegalArgumentException("Invalid restaurant or name");
         }
+
+        logOperation("Deleting product: " + product.getName());
 
         db.deleteProduct(product);
         ctx.getEditingRestaurant().removeProduct(product);
