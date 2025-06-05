@@ -1,5 +1,6 @@
 package Orders;
 
+import Location.Location;
 import Products.Product;
 import Stores.Restaurant;
 import Users.Client;
@@ -35,6 +36,9 @@ public class Order {
         return cart;
     }
 
+    public Location getLocation() {
+        return client.getLocation();
+    }
     public Client getClient() {
         return client;
     }

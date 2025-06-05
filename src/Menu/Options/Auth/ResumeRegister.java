@@ -18,6 +18,7 @@ public class ResumeRegister extends MenuOption {
 
         options.add(new RegisterClient());
         options.add(new RegisterOwner());
+        options.add(new RegisterCourier());
 
         Menu menu = new Menu(options);
         menu.show(ctx);

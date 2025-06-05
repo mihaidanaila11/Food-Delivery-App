@@ -1,6 +1,8 @@
 package Users;
 
 import Auth.PasswordHash;
+import Location.City;
+import Orders.Order;
 
 public class Courier extends User {
     private String companyName;
@@ -11,13 +13,17 @@ public class Courier extends User {
     }
 
     private Vehicle vehicle;
+    private City workingCity;
 
-    public Courier(String firstName, String lastName, String email, PasswordHash passwordHash,
-                   String companyName, String licensePlate, Vehicle vehicle, boolean regComplete) {
-        super(firstName, lastName, email, passwordHash, regComplete);
+    private Order activeOrder;
+
+    public Courier(User user,
+                   String companyName, String licensePlate, Vehicle vehicle, City workingCity) {
+        super(user);
         this.companyName = companyName;
         this.licensePlate = licensePlate;
         this.vehicle = vehicle;
+        this.workingCity = workingCity;
     }
 
     public String getCompanyName() {
@@ -42,5 +48,17 @@ public class Courier extends User {
 
     public void setVehicle(Vehicle vehicle) {
         this.vehicle = vehicle;
+    }
+
+    public City getWorkingCity() {
+        return workingCity;
+    }
+
+    public void setActiveOrder(Order activeOrder) {
+        this.activeOrder = activeOrder;
+    }
+
+    public Order getActiveOrder() {
+        return activeOrder;
     }
 }

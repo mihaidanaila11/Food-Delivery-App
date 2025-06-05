@@ -27,11 +27,13 @@ public class Restaurant {
         this.location = location;
         this.owner = owner;
         this.description = description;
+        this.products = new ArrayList<>();
     }
 
     public Restaurant(String name, Location location) {
         this.name = name;
         this.location = location;
+        this.products = new ArrayList<>();
     }
 
     public Restaurant(String name, Location location, String description) {

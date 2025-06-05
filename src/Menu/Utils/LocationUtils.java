@@ -64,8 +64,7 @@ public class LocationUtils {
         return cities;
     }
 
-    public static Location askForLocation(AppContext ctx) throws SQLException {
-        System.out.println("What is your country?");
+    private static Country askForCountry(AppContext ctx) throws SQLException {
         Country selectedCountry;
         ArrayList<Country> countries;
 
@@ -80,14 +79,17 @@ public class LocationUtils {
             }
         }
 
+        return selectedCountry;
+    }
+
+    private static State askForState(AppContext ctx, Country country) throws SQLException {
         State selectedState;
         ArrayList<State> states;
 
-        states = fetchStates(ctx, selectedCountry);
+        states = fetchStates(ctx, country);
 
-        while (true){
+        while (true) {
             try {
-                System.out.println("What is your state?");
                 selectedState = selectFromList(states);
                 break;
             } catch (InvalidInput e) {
@@ -95,21 +97,47 @@ public class LocationUtils {
             }
         }
 
+        return selectedState;
+    }
+
+    private static City askForCity(AppContext ctx, State state) throws SQLException {
         City selectedCity;
         ArrayList<City> cities;
 
-        cities = fetchCities(ctx, selectedState);
+        cities = fetchCities(ctx, state);
 
-
-        while (true){
+        while (true) {
             try {
-                System.out.println("What is your city?");
                 selectedCity = selectFromList(cities);
                 break;
             } catch (InvalidInput e) {
                 System.out.println(e.getMessage());
             }
         }
+
+        return selectedCity;
+    }
+
+    public static City askForCity(AppContext ctx) throws SQLException {
+        System.out.println("What is your country?");
+        Country selectedCountry = askForCountry(ctx);
+
+        System.out.println("What is your state?");
+        State selectedState = askForState(ctx, selectedCountry);
+
+        System.out.println("What is your city?");
+        return askForCity(ctx, selectedState);
+    }
+
+    public static Location askForLocation(AppContext ctx) throws SQLException {
+        System.out.println("What is your country?");
+        Country selectedCountry = askForCountry(ctx);
+
+        System.out.println("What is your state?");
+        State selectedState = askForState(ctx, selectedCountry);
+
+        System.out.println("What is your city?");
+        City selectedCity = askForCity(ctx, selectedState);
 
         System.out.println("Enter your postal code:");
         String postalCode = Menu.Menu.getStringInput();

@@ -30,6 +30,7 @@ public class PlaceOrder extends MenuOption {
             System.out.println("Please enter your address:");
             try {
                 orderLocation = Menu.Utils.LocationUtils.askForLocation(ctx);
+
             } catch (SQLException e){
                 System.out.println(e.getMessage());
                 return;

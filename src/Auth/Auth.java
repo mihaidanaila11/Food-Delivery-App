@@ -5,6 +5,7 @@ import Exceptions.AuthExceptions.UserAlreadyExsists;
 import Exceptions.AuthExceptions.UserDoesNotExist;
 import Stores.Restaurant;
 import Users.Client;
+import Users.Courier;
 import Users.Owner;
 import Users.User;
 import database.DatabaseHandler;
@@ -24,6 +25,7 @@ public class Auth {
     private User loggedUser;
     private Owner loggedOwner;
     private Client loggedClient;
+    private Courier loggedCourier;
     private final DatabaseHandler db;
 
     public Auth(DatabaseHandler db) {
@@ -71,6 +73,17 @@ public class Auth {
         loggedUser.setRegComplete(true);
     }
 
+    public void completeCourierRegistration(Courier newCourier) throws SQLException {
+        newCourier.addRole(User.Roles.COURIER);
+
+        db.insertCourier(newCourier);
+        db.updateUserRoles(newCourier);
+        setLoggedCourier(newCourier);
+
+        db.updateRegistrationComplete(newCourier, true);
+        loggedUser.setRegComplete(true);
+    }
+
     public void loginUser(String email, String password) throws NoSuchAlgorithmException, InvalidKeySpecException, SQLException {
         ResultSet fetchedUser = db.selectAllWhere("Users", "email", email);
 
@@ -115,6 +128,10 @@ public class Auth {
 
         try{
             loggedClient = db.fetchClientById(user.getId());
+        } catch (UserDoesNotExist ignored) {}
+
+        try{
+            loggedCourier = db.fetchCourierById(user.getId());
         } catch (UserDoesNotExist ignored) {}
 
 
@@ -207,9 +224,17 @@ public class Auth {
         setLoggedUser(loggedClient);
     }
 
+    public void setLoggedCourier(Courier loggedCourier) {
+        this.loggedCourier = loggedCourier;
+        setLoggedUser(loggedCourier);
+    }
+
     public Client getLoggedClient(){
         return loggedClient;
     }
 
     public Owner getLoggedOwner() { return loggedOwner; }
+
+    public Courier getLoggedCourier() { return loggedCourier; }
+
 }

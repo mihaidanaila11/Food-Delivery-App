@@ -6,6 +6,8 @@ import Menu.Options.Auth.Logout;
 import Menu.Options.Auth.Register;
 import Menu.Options.Auth.ResumeRegister;
 import Menu.Options.Cart.ViewCart;
+import Menu.Options.Courier.GetOrder;
+import Menu.Options.Courier.ShowCurrentOrder;
 import Menu.Options.Exit;
 import Menu.Options.Owner.CreateRestaurant;
 import Menu.Options.Owner.OwnedRestaurants;
@@ -52,6 +54,8 @@ public class Main {
                 options.add(new OwnedRestaurants().addNeededRole(User.Roles.OWNER));
                 options.add(new CreateRestaurant().addNeededRole(User.Roles.OWNER));
                 options.add(new ViewRestaurants().addNeededRole(User.Roles.CLIENT));
+                options.add(new GetOrder().addNeededRole(User.Roles.COURIER));
+                options.add(new ShowCurrentOrder().addNeededRole(User.Roles.COURIER));
                 options.add(new ViewCart().addNeededRole(User.Roles.CLIENT));
                 options.add(new Logout());
                 options.add(new Exit());

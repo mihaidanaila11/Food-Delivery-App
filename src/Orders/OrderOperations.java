@@ -1,6 +1,7 @@
 package Orders;
 
 import Auth.AppContext;
+import Exceptions.OrderExceptions.NoOrderAvailable;
 import Location.Location;
 
 import java.sql.ResultSet;
@@ -33,5 +34,33 @@ public class OrderOperations {
         }
 
         ctx.getAuth().getLoggedClient().getCart().emptyCart();
+    }
+
+    public static Order getAvailableOrder(AppContext ctx) throws SQLException {
+        ResultSet availableOrders = ctx.getDb().getAvailableOrders(ctx.getAuth().getLoggedCourier().getWorkingCity());
+        if (!availableOrders.next()) {
+            throw new NoOrderAvailable();
+        }
+
+        String orderId = availableOrders.getString("OrderID");
+        Order order = ctx.getDb().fetchOrderById(UUID.fromString(orderId));
+
+        if (order == null) {
+            throw new NoOrderAvailable();
+        }
+
+        ctx.getDb().assignCourierToOrder(order.getID(), ctx.getAuth().getLoggedCourier().getId());
+        System.out.println("You have accepted the order: " + order);
+        return order;
+    }
+
+    public static void finishOrder(AppContext ctx, Order activeOrder) throws SQLException{
+        if (activeOrder == null) {
+            System.out.println("You do not have an active order to finish.");
+            return;
+        }
+
+        ctx.getDb().finishOrder(activeOrder);
+        System.out.println("Order " + activeOrder.getID() + " has been finished successfully.");
     }
 }

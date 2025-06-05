@@ -16,7 +16,7 @@ public class User {
     private final PasswordHash passwordHash;
     private boolean regComplete;
 
-    public enum Roles {USER, ADMIN, OWNER, CLIENT}
+    public enum Roles {USER, ADMIN, OWNER, CLIENT, COURIER}
     private HashSet<Roles> userRoles;
 
     public User(User user) {

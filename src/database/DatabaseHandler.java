@@ -9,9 +9,7 @@ import Orders.Order;
 import Products.Product;
 import Stores.Restaurant;
 import Stores.RestaurantOperations;
-import Users.Client;
-import Users.Owner;
-import Users.User;
+import Users.*;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -687,12 +685,13 @@ public class DatabaseHandler {
     }
 
     public void insertOrder(Order order) throws SQLException {
-        String query = "INSERT INTO Orders (OrderID, ClientID, CourierID, Delivered) " +
-                "VALUES (?, ?, NULL, false);";
+        String query = "INSERT INTO Orders (OrderID, ClientID, CourierID, Delivered, LocationID) " +
+                "VALUES (?, ?, NULL, false, ?);";
 
         PreparedStatement stmt = conn.prepareStatement(query);
         stmt.setString(1, order.getID().toString());
         stmt.setString(2, order.getClient().getId().toString());
+        stmt.setInt(3, getOrInsertLocation(order.getLocation()));
         executeUpdate(stmt);
 
         for (Product product : order.getCart().getProducts()) {
@@ -703,6 +702,182 @@ public class DatabaseHandler {
             productStmt.setInt(3, order.getCart().getQuantity(product));
             executeUpdate(productStmt);
         }
+
+    }
+
+    private ResultSet getVehicleType(Courier.Vehicle vehicle) throws SQLException {
+        String query = "SELECT VehicleTypeID FROM VehicleTypes WHERE TypeName = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, vehicle.name());
+        return stmt.executeQuery();
+    }
+
+    public void insertCourier(Courier newCourier) throws SQLException{
+        String query = "INSERT INTO Couriers (UserID, CompanyName, LicensePlate, VehicleTypeID, WorkingCityID) " +
+                "VALUES (?, ?, ?, ?, ?);";
+
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, newCourier.getId().toString());
+        stmt.setString(2, newCourier.getCompanyName());
+        stmt.setString(3, newCourier.getLicensePlate());
+
+        ResultSet vehicleTypeRs = getVehicleType(newCourier.getVehicle());
+        if (!vehicleTypeRs.next()) {
+            throw new SQLException("Vehicle type not found: " + newCourier.getVehicle().name());
+        }
+
+        stmt.setInt(4, vehicleTypeRs.getInt("VehicleTypeID"));
+        stmt.setInt(5, newCourier.getWorkingCity().getID());
+
+        executeUpdate(stmt);
+
+    }
+
+    private Order fetchActiveOrderByCourierId(UUID courierId) throws SQLException {
+        String query = "SELECT * FROM Orders WHERE CourierID = ? AND Delivered = false;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, courierId.toString());
+        ResultSet rs = stmt.executeQuery();
+
+        if(rs.next()) {
+            return fetchOrderById(UUID.fromString(rs.getString("OrderID")));
+        } else {
+            throw new SQLException("No active order found for Courier ID: " + courierId);
+        }
+    }
+
+    private Restaurant fetchRestaurantById(UUID restaurantId) throws SQLException {
+        String query = "SELECT * FROM Restaurants WHERE RestaurantID = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, restaurantId.toString());
+        ResultSet rs = stmt.executeQuery();
+
+        if(rs.next()) {
+            return new Restaurant(
+                    rs.getString("RestaurantName"),
+                    fetchLocationById(rs.getInt("LocationID")),
+                    null,
+                    rs.getString("Description")
+            );
+        } else {
+            throw new SQLException("Restaurant not found with ID: " + restaurantId);
+        }
+    }
+
+    private Product fetchProductById(UUID productId) throws SQLException {
+        String query = "SELECT * FROM Products WHERE ProductID = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, productId.toString());
+        ResultSet rs = stmt.executeQuery();
+
+        if(rs.next()) {
+            return new Product(
+                    rs.getString("ProductName"),
+                    rs.getFloat("Price"),
+                    rs.getString("ProductDescription"),
+                    UUID.fromString(rs.getString("ProductID")),
+                    fetchRestaurantById(UUID.fromString(rs.getString("RestaurantID")))
+            );
+        } else {
+            throw new SQLException("Product not found with ID: " + productId);
+        }
+    }
+
+    private UserCart fetchUserCartByOrderID(UUID orderId) throws SQLException {
+        String query = "SELECT * FROM ordercontainedproducts WHERE OrderID = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, orderId.toString());
+        ResultSet rs = stmt.executeQuery();
+
+        if(rs.next()) {
+            UserCart cart = new UserCart();
+            cart.addToCart(
+                    fetchProductById(UUID.fromString(rs.getString("ProductID"))),
+                    rs.getInt("Amount")
+            );
+
+            return cart;
+        } else {
+            throw new SQLException("Cart not found for Order ID: " + orderId);
+        }
+    }
+
+    public Order fetchOrderById(UUID orderId) throws SQLException {
+        String query = "SELECT * FROM Orders WHERE OrderID = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, orderId.toString());
+        ResultSet rs = stmt.executeQuery();
+
+        if(rs.next()) {
+            return new Order(
+                    fetchUserCartByOrderID(orderId),
+                    fetchClientById(UUID.fromString(rs.getString("ClientID"))),
+                    rs.getString("CourierID") != null ? fetchCourierById(UUID.fromString(rs.getString("CourierID"))) : null
+            );
+        } else {
+            throw new SQLException("Order not found with ID: " + orderId);
+        }
+    }
+
+    String fetchVehicleTypeNameByID(int vehicleTypeId) throws SQLException {
+        String query = "SELECT TypeName FROM VehicleTypes WHERE VehicleTypeID = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setInt(1, vehicleTypeId);
+        ResultSet rs = stmt.executeQuery();
+
+        if(rs.next()) {
+            return rs.getString("TypeName");
+        } else {
+            throw new SQLException("Vehicle type not found with ID: " + vehicleTypeId);
+        }
+    }
+
+    public Courier fetchCourierById(UUID id) throws SQLException{
+        String query = "SELECT * FROM Couriers WHERE UserID = ?;";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, id.toString());
+        ResultSet rs = stmt.executeQuery();
+
+        if(rs.next()) {
+            Courier courier = new Courier(
+                    fetchUserById(rs.getString("UserID")),
+                    rs.getString("CompanyName"),
+                    rs.getString("LicensePlate"),
+                    Courier.Vehicle.valueOf(fetchVehicleTypeNameByID(rs.getInt("VehicleTypeID"))),
+                    fetchCityById(rs.getInt("WorkingCityID"))
+            );
+            try{
+                Order activeOrderRs = fetchActiveOrderByCourierId(courier.getId());
+                courier.setActiveOrder(activeOrderRs);
+            } catch (SQLException e) {
+                courier.setActiveOrder(null);
+            }
+
+            return courier;
+
+        } else {
+            throw new UserDoesNotExist();
+        }
+    }
+
+    public ResultSet getAvailableOrders(City workingCity) throws SQLException {
+        String query = "SELECT * FROM Orders " +
+                "WHERE CourierID IS NULL AND Delivered = false AND LocationID IN " +
+                "(SELECT LocationID FROM Locations WHERE CityID = ?);";
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setInt(1, workingCity.getID());
+        return stmt.executeQuery();
+
+    }
+
+    public void finishOrder(Order activeOrder) throws SQLException {
+        String query = "UPDATE Orders SET Delivered = true WHERE OrderID = ?;";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, activeOrder.getID().toString());
+        executeUpdate(stmt);
 
     }
 }

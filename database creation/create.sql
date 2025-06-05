@@ -22,12 +22,20 @@ CREATE table UserRoles(
     CONSTRAINT PK_UserRoles PRIMARY KEY (UserID, RoleID),
     
     CONSTRAINT FK_UserRoles_UserID FOREIGN KEY (UserID)
-    REFERENCES Users(UserID),
+    REFERENCES Users(UserID)
+    ON DELETE CASCADE,
     
     CONSTRAINT FK_UserRoles_RoleID FOREIGN KEY (RoleID)
     REFERENCES roles(RoleID)
     ON DELETE CASCADE
 );
+
+ALTER TABLE UserRoles
+ADD CONSTRAINT FK_UserRoles_UserID FOREIGN KEY (UserID)
+    REFERENCES Users(UserID)
+    ON DELETE CASCADE;
+
+
 
 SELECT * FROM Users;
 
@@ -106,6 +114,7 @@ CREATE table Couriers(
 
 
 
+
 CREATE table Owners(
 	UserID varchar(40) PRIMARY KEY,
     
@@ -147,6 +156,7 @@ CREATE table Orders(
     CourierID varchar(40),
     RestaurantID varchar(40) NOT NULL,
     Delivered boolean NOT NULL DEFAULT FALSE,
+    LocationID int NOT NULL,
     
     CONSTRAINT PK_Orders PRIMARY KEY (OrderID, ClientID),
     
@@ -160,9 +170,15 @@ CREATE table Orders(
     
     CONSTRAINT FK_Orders_RestaurantID FOREIGN KEY (RestaurantID)
     REFERENCES Restaurants (RestaurantID)
-    ON DELETE CASCADE
+    ON DELETE CASCADE,
+
+    CONSTRAINT FK_Orders_LocationID FOREIGN KEY (LocationID)
+    REFERENCES Locations (LocationID)
 );
 
+ALTER TABLE Orders
+ADD CONSTRAINT FK_Orders_LocationID FOREIGN KEY (LocationID)
+    REFERENCES Locations (LocationID);
 
 
 CREATE table Products(
@@ -187,7 +203,8 @@ CREATE table OrderContainedProducts(
     CONSTRAINT PK_OrderContainedProducts PRIMARY KEY (OrderID, ProductID),
     
     CONSTRAINT FK_OrderContainedProducts_OrderID FOREIGN KEY (OrderID)
-    REFERENCES Orders (OrderID),
+    REFERENCES Orders (OrderID)
+    ON DELETE CASCADE,
     
     CONSTRAINT FK_OrderContainedProducts_ProductID FOREIGN KEY (ProductID)
     REFERENCES Products (ProductID)
